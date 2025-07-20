@@ -13,10 +13,15 @@ const orderRoutes = require("./routes/orderRoutes");
 const bannerRoutes = require("./routes/bannerRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
-}));
+// Cấu hình CORS đúng
+const corsOptions = {
+  origin: ['http://localhost:3000', 'https://vsport.onrender.com'], // cho phép cả local dev và web đã deploy
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, 
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
