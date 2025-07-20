@@ -19,7 +19,15 @@ require("dotenv").config();
 //? Kết nối MongoDB
 connectDB(); 
 
-app.use(cors()); 
+app.use(cors({
+  origin: ['http://localhost:3000'], // cho phép frontend ở localhost
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+app.options('*', cors()); // Cho phép xử lý preflight mọi route
+
 app.use(express.json());
 
 //?  Routes
