@@ -6,9 +6,9 @@ const productController = require("../controllers/productController");
 // Sản phẩm
 router.post("/", upload.array("images", 6), productController.createProduct);
 router.put("/:id", upload.array("images", 6), productController.updateProduct);
-router.get("/", productController.getAllProducts);
 
 router.get("/category/:id", productController.getAllProductByCategory); 
+router.get("/", productController.getAllProducts);
 router.get("/:id", productController.getProductById); 
 
 router.delete("/:id", productController.deleteProduct);

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from './../../utils/axios';
 
 const Banner = () => {
   const [slides, setSlides] = useState([]);
@@ -10,7 +10,7 @@ const Banner = () => {
   useEffect(() => {
     const fetchSlides = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/banner');
+        const res = await axiosInstance.get('api/banner');
         setSlides(res.data);
       } catch (err) {
         console.error('Lỗi khi lấy banner:', err);

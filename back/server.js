@@ -1,50 +1,63 @@
 const express = require("express");
 const app = express();
-const connectDB = require("./config/db");
+const dotenv = require("dotenv").config();
 const cors = require("cors");
-require("dotenv").config();
+const bodyParser = require("body-parser");
+const connectDB = require("./config/db");
 
-// Kết nối MongoDB
-connectDB();
+// Import routes
+const userRoutes = require("./routes/userRoutes");
+const productRoutes = require("./routes/productRoutes");
+const cartRoutes = require("./routes/cartRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const bannerRoutes = require("./routes/bannerRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 
-// Cấu hình CORS
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://your-frontend-domain.com'], // thêm domain deploy nếu có
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: 'http://localhost:3000',
   credentials: true
 }));
 
-// Xử lý preflight cho tất cả routes
-app.options('*', cors());
-
-// Middleware để parse JSON
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// Routes
-const userRoutes = require("./routes/userRoutes");
-const categoryRoutes = require("./routes/categoryRoutes");
-const productRoutes = require("./routes/productRoutes");
-const bannerRoutes = require("./routes/bannerRoutes");
-const cartRoutes = require("./routes/cartRoutes");
-const orderRoutes = require("./routes/orderRoutes");
-const addressRoutes = require("./routes/addressRoutes");
-
-app.use("/api/user", userRoutes);
-app.use("/api/category", categoryRoutes);
-app.use("/api/product", productRoutes);
-app.use("/api/banner", bannerRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/order", orderRoutes);
-app.use("/api/address", addressRoutes);
-
-// Trang chủ (test route)
+// Test route
 app.get("/", (req, res) => {
-  res.send("Backend is running...");
+  res.send("🚀 API is running!");
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
+// Connect DB
+connectDB();
+
+// Log loading routes
+console.log("✅ Loading routes...");
+
+try {
+  app.use("/api/user", userRoutes);
+  console.log("✅ /api/user routes loaded");
+
+  app.use("/api/product", productRoutes);
+  console.log("✅ /api/product routes loaded");
+
+  app.use("/api/cart", cartRoutes);
+  console.log("✅ /api/cart routes loaded");
+
+  app.use("/api/order", orderRoutes);
+  console.log("✅ /api/order routes loaded");
+
+
+  app.use("/api/banner", bannerRoutes);
+  console.log("✅ /api/banner routes loaded");
+
+  app.use("/api/category", categoryRoutes);
+  console.log("✅ /api/category routes loaded");
+
+} catch (err) {
+  console.error("❌ Error when loading routes:", err.message);
+}
+
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`✅ Server is running on port ${PORT}`);
+  console.log(`🚀 Server is running on port ${PORT}`);
 });
