@@ -163,9 +163,9 @@ const AddressPage = () => {
 
   <span>Đặt làm địa chỉ mặc định</span>
 </label>
-          <div className="flex gap-2">
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-              {isEdit ? "Cập nhật" : "Thêm"}
+          <div className="flex gap-2 justify-end">
+            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+              {isEdit ? "Cập nhật" : "Thêm địa chỉ"}
             </button>
             {isEdit && (
               <button

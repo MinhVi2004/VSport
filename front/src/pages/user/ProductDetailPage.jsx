@@ -14,6 +14,8 @@ const ProductDetailPage = () => {
       const [quantity, setQuantity] = useState(1);
       const [relatedProducts, setRelatedProducts] = useState([]);
       useEffect(() => {
+           window.scrollTo({ top: 0, behavior: 'smooth' });
+
             const fetchProduct = async () => {
                   try {
                         const res = await axiosInstance.get(
@@ -69,8 +71,7 @@ const ProductDetailPage = () => {
                         });
                         toast.success('Đã thêm vào giỏ hàng');
                   } else {
-                        const localCart =
-                              JSON.parse(localStorage.getItem('cart')) || [];
+                        const localCart = JSON.parse(localStorage.getItem('cart')) || [];
 
                         const existingIndex = localCart.findIndex(
                               item =>

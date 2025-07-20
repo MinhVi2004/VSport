@@ -10,7 +10,7 @@ const redirect = new URLSearchParams(location.search).get("redirect") || "/";
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
-    gender: "",
+    // gender: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -26,7 +26,7 @@ const redirect = new URLSearchParams(location.search).get("redirect") || "/";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { name, gender, email, password, confirmPassword } = formData;
+    const { name,  email, password, confirmPassword } = formData;
 
     // Validation
     if (!name || !email || !password || !confirmPassword) {
@@ -42,10 +42,10 @@ const redirect = new URLSearchParams(location.search).get("redirect") || "/";
       toast.warning("Tên phải có ít nhất 2 ký tự.");
       return;
     }
-    if(gender === "") {
-      toast.warning("Vui lòng chọn giới tính.");
-      return;
-    }
+    // if(gender === "") {
+    //   toast.warning("Vui lòng chọn giới tính.");
+    //   return;
+    // }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.warning("Email không đúng định dạng.");
@@ -71,7 +71,7 @@ const redirect = new URLSearchParams(location.search).get("redirect") || "/";
     try {
       const res = await axiosInstance.post("api/user/signup", {
         name,
-        gender,
+        // gender,
         email,
         password,
       });
@@ -80,7 +80,7 @@ const redirect = new URLSearchParams(location.search).get("redirect") || "/";
 
       setFormData({
         name: "",
-        gender: "",
+        // gender: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -131,7 +131,7 @@ const redirect = new URLSearchParams(location.search).get("redirect") || "/";
                 onChange={handleChange}
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block font-medium text-gray-700 mb-1">
                 Giới tính
               </label>
@@ -159,7 +159,7 @@ const redirect = new URLSearchParams(location.search).get("redirect") || "/";
                   <span>Nữ</span>
                 </label>
               </div>
-            </div>
+            </div> */}
 
             <div>
               <label
