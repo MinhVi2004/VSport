@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from '../../utils/axios';
+import axiosInstance from './../../utils/axios';
 import { MapPin, Edit, Trash2, CheckCircle, Check, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -27,7 +27,7 @@ const CheckoutPage = () => {
 
     const fetchAddresses = async () => {
         try {
-            const res = await axios.get('/api/address');
+            const res = await axiosInstance.get('/api/address');
             setAddresses(res.data);
         } catch {
             toast.error('Không thể tải địa chỉ');
@@ -36,7 +36,7 @@ const CheckoutPage = () => {
 
     const fetchCart = async () => {
         try {
-            const res = await axios.get('/api/cart');
+            const res = await axiosInstance.get('/api/cart');
             if (res.data?.items.length === 0) {
                 toast.info('Giỏ hàng trống, vui lòng chọn thêm sản phẩm');
                 navigate('/');
@@ -72,10 +72,10 @@ const CheckoutPage = () => {
         e.preventDefault();
         try {
             if (isEdit) {
-                await axios.put(`/api/address/${editId}`, form);
+                await axiosInstance.put(`/api/address/${editId}`, form);
                 toast.success('Cập nhật địa chỉ thành công');
             } else {
-                await axios.post('/api/address', form);
+                await axiosInstance.post('/api/address', form);
                 toast.success('Thêm địa chỉ thành công');
             }
             setFormVisible(false);
@@ -95,7 +95,7 @@ const CheckoutPage = () => {
 
     const handleDelete = async id => {
         if (confirm('Xác nhận xóa địa chỉ này?')) {
-            await axios.delete(`/api/address/${id}`);
+            await axiosInstance.delete(`/api/address/${id}`);
             fetchAddresses();
         }
     };
@@ -114,36 +114,88 @@ const CheckoutPage = () => {
         setEditId(null);
     };
 
+    // const handleConfirm = async () => {
+    //     if (!selectedAddress) {
+    //         toast.warning('Vui lòng chọn địa chỉ giao hàng');
+    //         return;
+    //     }
+    //     try {
+    //         const orderData = {
+    //             address: selectedAddress._id,
+    //             orderItems: cartItems.map(item => ({
+    //                 product: item.product._id,
+    //                 variant: item.variant?._id,
+    //                 size: item.size,
+    //                 quantity: item.quantity,
+    //                 price: item.product.price,
+    //             })),
+    //             totalAmount: totalPrice,
+    //             paymentMethod: 'COD', // hoặc thêm dropdown chọn MoMo/PayPal nếu cần
+    //         };
+    //         const token = sessionStorage.getItem('token');
+    //         await axiosInstance.post('/api/order', orderData, {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`,
+    //             },
+    //         });
+
+    //         toast.success('Đặt hàng thành công!');
+    //         navigate('/'); // hoặc chuyển sang trang lịch sử đơn hàng
+    //     } catch (err) {
+    //         console.error(err);
+    //         toast.error('Đặt hàng thất bại!');
+    //     }
+    // };
     const handleConfirm = async () => {
         if (!selectedAddress) {
             toast.warning('Vui lòng chọn địa chỉ giao hàng');
             return;
         }
-        try {
-            const orderData = {
-                address: selectedAddress._id,
-                orderItems: cartItems.map(item => ({
-                    product: item.product._id,
-                    variant: item.variant?._id,
-                    size: item.size,
-                    quantity: item.quantity,
-                    price: item.product.price,
-                })),
-                totalAmount: totalPrice,
-                paymentMethod: 'COD', // hoặc thêm dropdown chọn MoMo/PayPal nếu cần
-            };
-            const token = sessionStorage.getItem('token');
-            await axios.post('/api/order', orderData ,{
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
 
-            toast.success('Đặt hàng thành công!');
-            navigate('/'); // hoặc chuyển sang trang lịch sử đơn hàng
+        try {
+            const token = sessionStorage.getItem('token');
+            const orderItems = cartItems.map(item => ({
+                product: item.product._id,
+                variant: item.variant?._id,
+                size: item.size,
+                quantity: item.quantity,
+                price: item.product.price,
+            }));
+
+            // Tạo đơn hàng chưa thanh toán
+            const createOrderRes = await axiosInstance.post(
+                '/api/order',
+                {
+                    orderItems,
+                    address: selectedAddress._id,
+                    paymentMethod: "vnpay",
+                    totalAmount: 10,
+                },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            const orderId = createOrderRes.data._id;
+            const res = await axiosInstance.post(
+                '/api/order/create-vnpay',
+                {
+                    orderId,
+                    totalAmount: 10,
+                    orderDesc: 'Thanh toán đơn hàng bằng VNPay',
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            // Redirect đến trang hiển thị QR code
+            navigate('/payment', { state: { qrUrl: res.data.url } });
         } catch (err) {
             console.error(err);
-            toast.error('Đặt hàng thất bại!');
+            toast.error('Tạo mã QR thanh toán thất bại!');
         }
     };
 

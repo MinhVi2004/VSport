@@ -22,6 +22,7 @@ import AddressPage from "./pages/user/AddressPage";
 import ProfilePage from "./pages/user/ProfilePage";
 import OrderPage from "./pages/user/OrderPage";
 import OrderDetailPage from "./pages/user/OrderDetailPage";
+import PaymentPage from "./pages/user/PaymentPage";
 
 import Dashboard from "./pages/admin/Dashboard";
 
@@ -61,6 +62,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage/>} />
             <Route path="/order" element={<OrderPage />} />
             <Route path="/order/:id" element={<OrderDetailPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
           </Route>
 
 

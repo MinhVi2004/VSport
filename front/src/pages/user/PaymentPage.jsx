@@ -1,35 +1,31 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import QRCode from 'qrcode.react';
+import React from 'react';
+import QRCode from 'react-qr-code';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const PaymentPage = () => {
-  const [qrUrl, setQrUrl] = useState('');
-
-  const handlePay = async () => {
-    const res = await axios.post('http://localhost:8080/create-payment', {
-      amount: 50000,
-      orderId: String(Date.now()),
-      orderDesc: 'Thanh toán đơn hàng ABC',
-    });
-
-    setQrUrl(res.data.url);
-  };
+  const location = useLocation();
+  const qrUrl = location.state?.qrUrl;
+  const navigate = useNavigate();
 
   return (
     <div className="text-center mt-10">
       <h1 className="text-2xl font-bold mb-4">Thanh toán với VNPay</h1>
-      <button
-        className="bg-blue-600 text-white px-4 py-2 rounded"
-        onClick={handlePay}
-      >
-        Tạo mã QR thanh toán
-      </button>
 
-      {qrUrl && (
-        <div className="mt-6">
+      {qrUrl ? (
+        <>
           <QRCode value={qrUrl} size={256} />
           <p className="mt-2 text-gray-600">Quét mã QR bằng app ngân hàng</p>
-        </div>
+        </>
+      ) : (
+        <>
+          <p className="text-red-600">Không có mã QR để hiển thị</p>
+          <button
+            className="mt-4 text-blue-600 underline"
+            onClick={() => navigate('/checkout')}
+          >
+            Quay lại trang đặt hàng
+          </button>
+        </>
       )}
     </div>
   );
