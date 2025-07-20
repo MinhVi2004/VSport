@@ -14,10 +14,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  gender:{
-    type: String,
-    enum: ["Nam", "Nữ"],
-  },
+  // gender:{
+  //   type: String,
+  //   enum: ["Nam", "Nữ"],
+  // },
   point:{
     type: Number,
     default: 0,
@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["user", "admin", "staff"],
     default: "user",
+  },
+  type:{
+    type: String,
+    enum: ["normal", "google", "facebook"],
+    default: "normal",
   },
   createdAt: {
     type: Date,

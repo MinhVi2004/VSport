@@ -5,6 +5,8 @@ const userController = require("../controllers/userController");
 
 router.post("/signup", userController.signupUser);
 router.post("/signin", userController.signinUser);
+router.post("/signinByGoogle", userController.signinUserByGoogle);
+router.post("/signinByFacebook", userController.signinUserByFacebook);
 
 router.get("/:id", userController.getUserById);
 router.put("/:id", userController.updateUser);

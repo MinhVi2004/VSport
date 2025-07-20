@@ -7,7 +7,7 @@ const Variant = require("../models/Variant");
 
 exports.getCart = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const cart = await Cart.findOne({ user: userId })
       .populate({
         path: "items.product",
@@ -23,10 +23,25 @@ exports.getCart = async (req, res) => {
     res.status(500).json({ message: 'Lỗi lấy giỏ hàng', error: err.message });
   }
 };
+exports.getCartCount = async (req, res) => {
+    const userId = req.user._id;
+
+    if (!userId) 
+      return res.status(400).json({ error: "Missing userId" });
+
+    try {
+      const count = await Cart.countDocuments({ userId });
+      return res.status(200).json({ count });
+    } catch (err) {
+      console.error("Get cart count error:", err);
+      return res.status(500).json({ error: "Server error" });
+    }
+
+}
 
 exports.addToCart = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { product, variant, size, quantity } = req.body;
 
     let cart = await Cart.findOne({ user: userId });
@@ -86,7 +101,7 @@ exports.addToCart = async (req, res) => {
 
 exports.mergeCart = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const items = req.body.items;
 
     let cart = await Cart.findOne({ user: userId });
@@ -126,7 +141,7 @@ exports.mergeCart = async (req, res) => {
 
 exports.updateCartItem = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { itemId, quantity } = req.body;
 
     const cart = await Cart.findOne({ user: userId });
@@ -143,7 +158,7 @@ exports.updateCartItem = async (req, res) => {
 
 exports.removeCartItem = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { itemId } = req.params;
 
     const cart = await Cart.findOne({ user: userId });

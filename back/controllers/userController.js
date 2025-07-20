@@ -5,7 +5,7 @@ require("dotenv").config();
 // POST thêm người dùng mới
 exports.signupUser = async (req, res) => {
   try {
-    const { name, gender, email, password } = req.body;
+    const { name, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const existingUser = await User.findOne({ email });
 
@@ -15,7 +15,7 @@ exports.signupUser = async (req, res) => {
       });
     }
 
-    const newUser = new User({ name, email, password: hashedPassword, gender });
+    const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
     const userResponse = newUser.toObject();
@@ -24,6 +24,80 @@ exports.signupUser = async (req, res) => {
     res.status(201).json({ message: "Đăng ký thành công", user: userResponse });
   } catch (err) {
     res.status(400).json({ message: "Đăng ký thất bại", error: err.message });
+  }
+};
+exports.signinUserByGoogle = async (req, res) => {
+  try {
+    const { email, name } = req.body;
+    let user = await User.findOne({ email, type:"google" });
+
+    if (!user) {
+      // Nếu đã tồn tại email nhưng với type khác (ví dụ: email), thì báo lỗi
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({
+          message: "Email này đã được đăng ký bằng phương thức khác",
+        });
+      }
+
+      // Nếu chưa tồn tại, tạo mới
+      user = new User({ name, email, password: "google-auth", type: "google" });
+      await user.save();
+    }
+
+    const payload = {
+      _id: user._id,
+      email: user.email,
+      role: user.role,
+    };
+    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "2h" });
+
+    const userData = user.toObject();
+    delete userData.password;
+
+    res.status(200).json({
+      message: "Đăng nhập thành công",
+      user: userData,
+      token: token,
+    });
+  } catch (err) {
+    res.status(400).json({ message: "Đăng nhập thất bại", error: err.message });
+  }
+};
+exports.signinUserByFacebook = async (req, res) => {
+  try {
+    const { email, name } = req.body;
+    let user = await User.findOne({ email, type: "facebook" });
+
+    if (!user) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({
+          message: "Email này đã được đăng ký bằng phương thức khác",
+        });
+      }
+
+      user = new User({ name, email, password: "facebook-auth", type: "facebook" });
+      await user.save();
+    }
+
+    const payload = {
+      _id: user._id,
+      email: user.email,
+      role: user.role,
+    };
+    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "2h" });
+
+    const userData = user.toObject();
+    delete userData.password;
+
+    res.status(200).json({
+      message: "Đăng nhập thành công",
+      user: userData,
+      token: token,
+    });
+  } catch (err) {
+    res.status(400).json({ message: "Đăng nhập thất bại", error: err.message });
   }
 };
 //Signin user
@@ -42,7 +116,7 @@ exports.signinUser = async (req, res) => {
 
     // Tạo payload (nội dung muốn mã hóa)
     const payload = {
-      id: user._id,
+      _id: user._id,
       email: user.email,
       role: user.role,
     };
@@ -131,7 +205,7 @@ exports.updateUserRole = async (req, res) => {
 // PUT cập nhật người dùng
 exports.updateUser = async (req, res) => {
   try {
-    const allowedFields = ["name", "email", "gender"];
+    const allowedFields = ["name", "email"];
     const updateData = {};
     for (let field of allowedFields) {
       if (req.body[field]) updateData[field] = req.body[field];

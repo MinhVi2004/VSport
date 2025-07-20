@@ -3,7 +3,7 @@ const Address = require('../models/Address');
 // Thêm địa chỉ
 exports.addAddress = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { fullName, phoneNumber, province, district, ward, detail, isDefault } = req.body;
 
     const fullAddress = `${detail}, ${ward}, ${district}, ${province}`;
@@ -34,7 +34,7 @@ exports.addAddress = async (req, res) => {
 // Lấy danh sách địa chỉ của user
 exports.getUserAddresses = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const addresses = await Address.find({ user: userId }).sort({ isDefault: -1, createdAt: -1 });
     res.json(addresses);
   } catch (error) {
@@ -46,7 +46,7 @@ exports.getUserAddresses = async (req, res) => {
 exports.updateAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { fullName, phoneNumber, province, district, ward, detail, isDefault } = req.body;
 
     const address = await Address.findOne({ _id: addressId, user: userId });
@@ -81,7 +81,7 @@ exports.updateAddress = async (req, res) => {
 exports.deleteAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     const address = await Address.findOneAndDelete({ _id: addressId, user: userId });
     if (!address) return res.status(404).json({ message: 'Địa chỉ không tồn tại' });
