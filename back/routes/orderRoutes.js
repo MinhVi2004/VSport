@@ -7,14 +7,15 @@ router.get('/vnpay_ipn', orderController.vnpayIpn); // Không cần auth
 
 router.use(authMiddleware); // Từ đây trở đi cần auth
 
+// 👇 Đặt route admin lên TRƯỚC
+router.get('/admin', isAdmin, orderController.getAllOrders);
+router.get('/admin/:id', isAdmin, orderController.getOrderById);
+router.put('/admin/:id', isAdmin, orderController.updateOrderStatus);
 
+// 👇 Các route còn lại
 router.post('/create-vnpay', orderController.createPaymentUrl);
 router.post('/', orderController.createOrder);
 router.get('/my', orderController.getAllMyOrders);
-router.get('/:id', orderController.getMyOrdersById);
-
-
-router.put('/:id', isAdmin, orderController.updateOrderStatus); 
-router.get('/', isAdmin, orderController.getAllOrders);
-
+router.get('/:id', orderController.getMyOrdersById); // <- đặt sau cùng
+router.put('/pay/:id', orderController.payOrder);
 module.exports = router;

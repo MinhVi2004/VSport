@@ -66,9 +66,7 @@ const ProductDetailPage = () => {
             try {
                   if (user && user._id) {
                         const token = sessionStorage.getItem("token");
-                        await axiosInstance.post('/api/cart', cartItem, {
-                              headers: { Authorization: `Bearer ${token}` },
-                        });
+                        await axiosInstance.post('/api/cart', cartItem);
                         toast.success('Đã thêm vào giỏ hàng');
                   } else {
                         const localCart = JSON.parse(localStorage.getItem('cart')) || [];

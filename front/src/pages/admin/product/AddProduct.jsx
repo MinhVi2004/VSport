@@ -69,9 +69,7 @@ const AddProduct = () => {
             });
 
             try {
-                  await axiosInstance.post('/api/product', formData, {
-                        headers: { 'Content-Type': 'multipart/form-data' },
-                  });
+                  await axiosInstance.post('/api/product', formData);
                   toast.success('Thêm sản phẩm thành công');
                   navigate('/admin/product');
             } catch (err) {

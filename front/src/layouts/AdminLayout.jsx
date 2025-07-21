@@ -60,12 +60,12 @@ const AdminLayout = () => {
       <Link to="/" className="flex items-center gap-2 text-sm hover:text-blue-600">
         <Home size={16} /> Về trang chủ
       </Link>
+      <Link to="/admin" className="block hover:text-blue-600">Dashboard</Link>
       <Link to="/admin/category" className="block hover:text-blue-600">Danh Mục</Link>
       <Link to="/admin/banner" className="block hover:text-blue-600">Banner</Link>
       <Link to="/admin/product" className="block hover:text-blue-600">Sản Phẩm</Link>
       <Link to="/admin/order" className="block hover:text-blue-600">Đơn Hàng</Link>
       <Link to="/admin/user" className="block hover:text-blue-600">Người Dùng</Link>
-      <Link to="/admin/statistics" className="block hover:text-blue-600">Thống Kê</Link>
     </div>
 
     {/* Footer nằm dưới cùng */}

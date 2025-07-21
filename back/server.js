@@ -13,10 +13,11 @@ const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const bannerRoutes = require("./routes/bannerRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const forgetPasswordRoutes = require("./routes/ForgetPasswordRoutes");
 
 const allowedOrigins = [
   "http://localhost:3000", // phát triển local
-  "https://v-sport-minhvi2004s-projects.vercel.app/", // thay bằng tên thật của app bạn trên Vercel
+  process.env.FRONT_END, // thay bằng tên thật của app bạn trên Vercel
 ];
 
 app.use(
@@ -61,8 +62,12 @@ try {
 
   app.use("/api/category", categoryRoutes);
   console.log("/api/category routes loaded");
+
+  app.use("/api/forget", forgetPasswordRoutes);
+  console.log("/api/forget routes loaded");
+
 } catch (err) {
-  console.error("❌ Error when loading routes:", err.message);
+  console.error("Error when loading routes:", err.message);
 }
 
 const PORT = process.env.PORT || 8080;

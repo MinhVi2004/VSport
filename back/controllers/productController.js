@@ -159,12 +159,15 @@ exports.getAllProductByCategory = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("category", "name").sort({ createdAt: -1 });
-    res.status(200).json(products);
-  } catch (error) {
-    res.status(500).json({ message: "Lỗi lấy danh sách sản phẩm", error: error.message });
+    const cate = req.query.cate;
+    const filter = cate ? { category: cate } : {};
+    const products = await Product.find(filter).populate("category").sort({ createdAt: -1 });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
+
 
 exports.getProductById = async (req, res) => {
   try {
