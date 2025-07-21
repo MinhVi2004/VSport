@@ -63,15 +63,7 @@ const SigninPage = () => {
 
             if (localCart.length > 0) {
                 try {
-                    await axiosInstance.post(
-                        '/api/cart/merge',
-                        { items: localCart },
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                        }
-                    );
+                    await axiosInstance.post('/api/cart/merge',{ items: localCart });
                     localStorage.removeItem('cart');
                     console.log('Local cart đã được đồng bộ vào server.');
                 } catch (mergeErr) {
@@ -129,12 +121,7 @@ const SigninPage = () => {
 
                 // Lấy thông tin người dùng từ Google
                 const res = await axios.get(
-                    'https://www.googleapis.com/oauth2/v3/userinfo',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${access_token}`,
-                        },
-                    }
+                    'https://www.googleapis.com/oauth2/v3/userinfo'
                 );
 
                 const userInfo = res.data;
@@ -263,6 +250,16 @@ const SigninPage = () => {
                         >
                             Đăng nhập
                         </button>
+                        <div className="text-right mt-2">
+    <button
+        type="button"
+        onClick={() => navigate('/forget-password')}
+        className=" text-blue-500 hover:underline"
+    >
+        Quên mật khẩu?
+    </button>
+</div>
+
                     </form>
                     <div className="relative my-3">
                         <div className="absolute inset-0 flex items-center">

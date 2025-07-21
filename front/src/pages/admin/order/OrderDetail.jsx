@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from './../../../utils/axios';
-import { X} from 'lucide-react';
+import { X, CheckCircle, Save , XCircle} from 'lucide-react';
+
 const OrderDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -20,12 +21,7 @@ const OrderDetail = () => {
         const fetchOrder = async () => {
             setLoading(true);
             try {
-                const res = await axiosInstance.get(`api/order/${id}`, {
-
-                     headers: {
-                        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
-                     },
-                });
+                const res = await axiosInstance.get(`api/order/admin/${id}`);
                 setOrder(res.data);
                 setStatus(res.data.status);
             } catch (err) {
@@ -39,69 +35,71 @@ const OrderDetail = () => {
     }, [id]);
 
     const handleUpdateStatus = async () => {
-    if (status === order.status) {
-        alert('Bạn chưa thay đổi trạng thái đơn hàng.');
-        return;
-    }
+        if (status === order.status) {
+            alert('Bạn chưa thay đổi trạng thái đơn hàng.');
+            return;
+        }
 
-    try {
-        await axiosInstance.put(`api/order/${id}`, { status });
-        alert('Cập nhật trạng thái thành công!');
-        navigate('/admin/orders');
-    } catch (err) {
-        alert('Cập nhật thất bại.');
-        console.error(err);
-    }
-};
+        try {
+            await axiosInstance.put(`api/order/admin/${id}`, { status });
+            alert('Cập nhật trạng thái thành công!');
+            navigate('/admin/orders');
+        } catch (err) {
+            alert('Cập nhật thất bại.');
+            console.error(err);
+        }
+    };
 
     if (loading) return <p className="p-6">Đang tải chi tiết đơn hàng...</p>;
     if (!order) return <p className="p-6">Không tìm thấy đơn hàng.</p>;
 
     return (
-        <div className="p-6 max-w-4xl mx-auto bg-white rounded shadow relative">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Chi tiết đơn hàng</h1>
+        <div className="p-6 max-w-5xl mx-auto bg-white rounded-2xl shadow-lg">
+            {/* Header */}
+            <div className="flex justify-between items-center border-b pb-4 mb-4">
+                <h1 className="text-3xl font-bold text-gray-800">
+                    Chi tiết đơn hàng
+                </h1>
                 <button
                     onClick={() => navigate('/admin/order')}
-                    className="text-sm text-black-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 transition"
                 >
-                    <X size={40} />
+                    <X size={32} />
                 </button>
             </div>
-            <div className="space-y-2 mb-6">
-                <p>
+
+            {/* Thông tin đơn hàng */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base text-gray-700 mb-6">
+                <div>
                     <strong>Mã đơn hàng:</strong> {order._id}
-                </p>
-                <p>
+                </div>
+                <div>
                     <strong>Khách hàng:</strong> {order.user?.name || 'N/A'}
-                </p>
-                <p>
+                </div>
+                <div>
                     <strong>Tổng tiền:</strong>{' '}
                     {order.totalAmount?.toLocaleString()}₫
-                </p>
-                <p>
-                    <strong>Địa chỉ giao hàng:</strong>
+                </div>
+                <div>
+                    <strong>Địa chỉ giao hàng:</strong>{' '}
                     {order.address.fullAddress || 'N/A'}
-                </p>
-                <p>
+                </div>
+                <div>
+                    <strong>Số điện thoại: </strong>
+                    {order.address.phoneNumber || 'N/A'}
+                </div>
+                <div>
                     <strong>Ngày đặt:</strong>{' '}
                     {new Date(order.createdAt).toLocaleString()}
-                </p>
-
-                <p>
-                    <strong>Phương thức thanh toán:</strong>{' '}
-                    {order.paymentMethod}
-                </p>
-
-                <p>
-                    <strong>Trình trạng thanh toán:</strong>{' '}
-                    {order.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
-                </p>
-                {/* Trạng thái đơn hàng */}
+                </div>
                 <div>
-                    <label className="font-medium mr-2">Trạng thái:</label>
+                    <strong>Phương thức thanh toán: </strong>{' '}
+                    {order.paymentMethod}
+                </div>
+                <div className="flex items-center gap-2">
+                    <label className="font-medium">Trạng thái đơn hàng:</label>
                     <select
-                        className="border px-3 py-1 rounded"
+                        className="border px-3 py-1 rounded bg-gray-50"
                         value={status}
                         onChange={e => setStatus(e.target.value)}
                     >
@@ -112,65 +110,97 @@ const OrderDetail = () => {
                         ))}
                     </select>
                 </div>
+                <div className='flex gap-2'>
+                    <strong>Trạng thái thanh toán: </strong>
+                    <div className="flex items-center gap-2">
+    {order.isPaid ? (
+        <>
+            <CheckCircle className="text-green-600" />
+            <span className="text-green-600 font-semibold">Đã thanh toán</span>
+        </>
+    ) : (
+        <>
+            <XCircle className="text-red-600" />
+            <span className="text-red-600 font-semibold">Chưa thanh toán</span>
+        </>
+    )}
+</div>
+                </div>
             </div>
 
-            {/* Sản phẩm trong đơn hàng */}
-            <h2 className="text-lg font-semibold mt-6 mb-2">
+            {/* Danh sách sản phẩm */}
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">
                 Danh sách sản phẩm
             </h2>
-            <table className="w-full bg-gray-50 rounded">
-                <thead className="bg-gray-200">
-                    <tr>
-                        <th className="text-center px-3 py-2">#</th>
-                        <th className="text-left px-3 py-2">Tên SP</th>
-                        <th className="text-center px-3 py-2">Size</th>
-                        <th className="text-center px-3 py-2">Giá</th>
-                        <th className="text-center px-3 py-2">Số lượng</th>
-                        <th className="text-center px-3 py-2">Thành tiền</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {order.orderItems?.map((item, index) => (
-                        <tr key={index} className="border-t">
-                            <td className=" text-center w-20 ">
-                                <img
-                                    src={item.product?.images[0].url}
-                                    alt={item.product?.name}
-                                    className="w-full h-full object-cover"
-                                />
-                            </td>
-                            <td className="px-3 py-2">
-                                {item.product?.name || 'SP'}
-                            </td>
-                            <td className="px-3 py-2 text-center">
-                                {item.size === 'default' ? 'N/A' : item.size}
-                            </td>
-                            <td className="px-3 py-2 text-center">
-                                {item.price?.toLocaleString()}₫
-                            </td>
-                            <td className="px-3 py-2 text-center">
-                                {item.quantity}
-                            </td>
-                            <td className="px-3 py-2 text-center">
-                                {(item.price * item.quantity).toLocaleString()}₫
-                            </td>
+            <div className="overflow-x-auto rounded-lg shadow-inner border">
+                <table className="min-w-full text-sm text-gray-800">
+                    <thead className="bg-gray-100 text-left">
+                        <tr>
+                            <th className="px-3 py-2 text-center">Ảnh</th>
+                            <th className="px-3 py-2">Tên sản phẩm</th>
+                            <th className="px-3 py-2 text-center">Size</th>
+                            <th className="px-3 py-2 text-center">Giá</th>
+                            <th className="px-3 py-2 text-center">Số lượng</th>
+                            <th className="px-3 py-2 text-center">
+                                Thành tiền
+                            </th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {order.orderItems?.map((item, index) => (
+                            <tr
+                                key={index}
+                                className="border-t hover:bg-gray-50 transition"
+                            >
+                                <td className="px-3 py-2 text-center">
+                                    <img
+                                        src={item.product?.images[0]?.url}
+                                        alt={item.product?.name}
+                                        className="w-14 h-14 object-cover rounded"
+                                    />
+                                </td>
+                                <td className="px-3 py-2">
+                                    {item.product?.name || 'SP'}
+                                </td>
+                                <td className="px-3 py-2 text-center">
+                                    {item.size === 'default'
+                                        ? 'N/A'
+                                        : item.size}
+                                </td>
+                                <td className="px-3 py-2 text-center">
+                                    {item.price?.toLocaleString()}₫
+                                </td>
+                                <td className="px-3 py-2 text-center">
+                                    {item.quantity}
+                                </td>
+                                <td className="px-3 py-2 text-center">
+                                    {(
+                                        item.price * item.quantity
+                                    ).toLocaleString()}
+                                    ₫
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
-            <div className="mt-6 flex justify-end space-x-4">
+            {/* Nút cập nhật */}
+            <div className="mt-6 flex justify-end">
                 <button
-    onClick={handleUpdateStatus}
-    disabled={status === order.status} // Chỉ bật khi có thay đổi
-    className={`px-4 py-2 rounded text-white transition ${
-        status === order.status
-            ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-blue-600 hover:bg-blue-700'
-    }`}
->
-    Lưu trạng thái
-</button>
+                    onClick={handleUpdateStatus}
+                    disabled={status === order.status}
+                    className={`flex items-center gap-2 px-5 py-2 rounded-lg font-medium text-white transition 
+                        ${
+                            status === order.status
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700'
+                        }
+                    `}
+                >
+                    <Save size={18} />
+                    Lưu trạng thái
+                </button>
             </div>
         </div>
     );

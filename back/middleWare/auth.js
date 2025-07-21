@@ -23,8 +23,13 @@ exports.authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    console.error("Lỗi xác minh token:", err.name, err.message);
-    return res.status(403).json({ message: "Token không hợp lệ" });
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại" });
+    }
+    if (err.name === "JsonWebTokenError") {
+      return res.status(403).json({ message: "Token không hợp lệ" });
+    }
+    return res.status(500).json({ message: "Lỗi xác thực token", error: err.message });
   }
 };
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from '../../utils/axios';
+import axiosInstance from './../../utils/axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Clock, PackageCheck, Truck, XCircle, CheckCircle } from 'lucide-react';
@@ -25,11 +25,7 @@ const MyOrderPage = () => {
                 navigate('/signin?redirect=/order');
                 return;
             }
-            const res = await axios.get('/api/order', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const res = await axiosInstance.get('/api/order/my');
             setOrders(res.data.reverse()); // newest first
         } catch (err) {
             toast.error('Không thể tải lịch sử đơn hàng');
@@ -55,68 +51,66 @@ const MyOrderPage = () => {
                 <div className="space-y-6">
                     {orders.map(order => (
                         <Link
-                            to={`/order/${order._id}`}
-                            key={order._id}
-                            className="block border p-4 rounded-md shadow-sm hover:shadow-md transition-all"
-                        >
-                            <div className="flex justify-between items-center mb-2">
-                                <div>
-                                    {/* <p className="text-sm text-gray-600">Mã đơn hàng: {order._id}</p> */}
-                                    <p className="text-sm text-gray-500">
-                                        Ngày tạo:{' '}
-                                        {new Date(
-                                            order.createdAt
-                                        ).toLocaleString()}
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-2 font-medium">
-                                    {statusIcons[order.status] || <Clock />}
-                                    <span>{order.status}</span>
-                                </div>
-                            </div>
+    to={`/order/${order._id}`}
+    key={order._id}
+    className="block border border-gray-200 p-4 rounded-2xl shadow hover:shadow-lg transition-all bg-white"
+>
+    {/* Header: Mã đơn + Trạng thái + Ngày tạo */}
+    <div className="flex justify-between items-start mb-4 ">
+        <div>
+            {/* <p className="text-xs text-gray-400">Mã đơn hàng:</p> */}
+            {/* <p className="text-sm font-medium text-gray-700">{order._id}</p> */}
+            <p className="text-xs text-gray-500 mt-1">
+                Ngày đặt: {new Date(order.createdAt).toLocaleString()}
+            </p>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-sm font-semibold">
+            {statusIcons[order.status] || <Clock size={16} />}
+            <span>{order.status}</span>
+        </div>
+    </div>
 
-                            <div className="divide-y">
-                                {order.orderItems.map((item, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex gap-4 py-3 items-center"
-                                    >
-                                        <img
-                                            src={item.product?.images?.[0]?.url}
-                                            alt={item.product?.name}
-                                            className="w-16 h-16 object-cover rounded"
-                                        />
-                                        <div className="flex-1">
-                                            <p className="font-medium">
-                                                {item.product?.name}
-                                            </p>
-                                            {item.variant && (
-                                                <p className="text-sm text-gray-500">
-                                                    Biến thể:{' '}
-                                                    {item.variant.color} -{' '}
-                                                    {item.variant.size}
-                                                </p>
-                                            )}
-                                            <p className="text-sm text-gray-600">
-                                                Số lượng: {item.quantity}
-                                            </p>
-                                        </div>
-                                        <div className="text-blue-600 font-semibold">
-                                            {item.price.toLocaleString()}₫
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+    {/* Danh sách sản phẩm */}
+    <div className="divide-y border-t">
+        {order.orderItems.map((item, index) => (
+            <div
+                key={index}
+                className="flex gap-4 py-3 items-center"
+            >
+                <img
+                    src={item.product?.images?.[0]?.url}
+                    alt={item.product?.name}
+                    className="w-16 h-16 object-cover rounded-lg border"
+                />
+                <div className="flex-1">
+                    <p className="font-medium text-gray-800">
+                        {item.product?.name}
+                    </p>
+                    {item.variant && (
+                        <p className="text-sm text-gray-500">
+                            Biến thể: {item.variant.color} - {item.variant.size}
+                        </p>
+                    )}
+                    <p className="text-sm text-gray-600">
+                        Số lượng: {item.quantity}
+                    </p>
+                </div>
+                <div className="text-right text-blue-700 font-semibold whitespace-nowrap">
+                    {item.price.toLocaleString()}₫
+                </div>
+            </div>
+        ))}
+    </div>
 
-                            <div className="text-right mt-4">
-                                <span className="font-semibold">
-                                    Tổng tiền:{' '}
-                                </span>
-                                <span className="text-red-600 font-bold">
-                                    {order.totalAmount.toLocaleString()}₫
-                                </span>
-                            </div>
-                        </Link>
+    {/* Tổng tiền */}
+    <div className="text-right mt-4 border-t pt-3">
+        <span className="text-gray-600">Tổng tiền: </span>
+        <span className="text-red-600 text-lg font-bold">
+            {order.totalAmount.toLocaleString()}₫
+        </span>
+    </div>
+</Link>
+
                     ))}
                 </div>
             )}

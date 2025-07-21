@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
+// ? ACCOUNT
 import UserLayout from "./layouts/UserLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminRoute from "./layouts/AdminRoute";
@@ -11,9 +12,10 @@ import AdminRoute from "./layouts/AdminRoute";
 import SigninPage from "./pages/user/SigninPage";
 import SignupPage from "./pages/user/SignupPage";
 import ForgetPasswordPage from "./pages/user/ForgetPasswordPage";
+import ResetPasswordPage from "./pages/user/ResetPasswordPage";
 
 
-
+//? USER
 import HomePage from "./pages/user/HomePage";
 import ProductDetailPage from "./pages/user/ProductDetailPage";
 import CartPage from "./pages/user/CartPage";
@@ -25,7 +27,10 @@ import OrderDetailPage from "./pages/user/OrderDetailPage";
 import PaymentPage from "./pages/user/PaymentPage";
 import PaymentResult from "./pages/user/PaymentResult";
 
-import Dashboard from "./pages/admin/Dashboard";
+
+
+//? ADMIN
+import Dashboard from "./pages/admin/AdminDashboard";
 
 import Banner from "./pages/admin/banner/Banner";
 import AddBanner from "./pages/admin/banner/AddBanner";
@@ -43,6 +48,9 @@ import AddVariant from "./pages/admin/product/AddVariant";
 import Order from "./pages/admin/order/Order";
 import OrderDetail from "./pages/admin/order/OrderDetail";
 
+import User from "./pages/admin/user/User";
+import UserDetail from "./pages/admin/user/UserDetail";
+
 
 function App() {
   return (
@@ -53,6 +61,7 @@ function App() {
           <Route path="/signin" element={<SigninPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forget-password" element={<ForgetPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
 
 
@@ -67,7 +76,8 @@ function App() {
             <Route path="/order" element={<OrderPage />} />
             <Route path="/order/:id" element={<OrderDetailPage />} />
             <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/payment-result" element={<PaymentResult />} />
+            <Route path="/payment-result/:orderId" element={<PaymentResult />} />
+            <Route path="/forget-password" element={<ForgetPasswordPage />} />
           </Route>
 
 
@@ -85,13 +95,16 @@ function App() {
                 <Route path="category/add" element={<AddCategory />} />
                 <Route path="category/update/:id" element={<UpdateCategory />} />
 
-                <Route path="/admin/product" element={<Product />} />
-                <Route path="/admin/product/add" element={<AddProduct />} />
-                <Route path="/admin/product/update/:id" element={<UpdateProduct />} />
-                <Route path="/admin/product/variant/:id" element={<AddVariant />} />
+                <Route path="product" element={<Product />} />
+                <Route path="product/add" element={<AddProduct />} />
+                <Route path="product/update/:id" element={<UpdateProduct />} />
+                <Route path="product/variant/:id" element={<AddVariant />} />
 
                 <Route path="order" element={<Order />} />
                 <Route path="order/:id" element={<OrderDetail />} />
+
+                <Route path="user" element={<User />} />
+                <Route path="user/:id" element={<UserDetail />} />
 
           </Route>
           </Route>
