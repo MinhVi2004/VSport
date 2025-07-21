@@ -25,11 +25,7 @@ const MyOrderPage = () => {
                 navigate('/signin?redirect=/order');
                 return;
             }
-            const res = await axiosInstance.get('/api/order/my', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const res = await axiosInstance.get('/api/order/my');
             setOrders(res.data.reverse()); // newest first
         } catch (err) {
             toast.error('Không thể tải lịch sử đơn hàng');

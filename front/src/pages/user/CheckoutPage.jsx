@@ -162,10 +162,7 @@ const CheckoutPage = () => {
                 //     }
                 // );
                 const updateStatus = await axiosInstance.put(
-                    `/api/order/pay/${orderId}`,
-                    {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }
+                    `/api/order/pay/${orderId}`
                 );
                 // navigate('/payment', { state: { qrUrl: res.data.url } });
                 toast.success('Đặt hàng thành công với phương thức VNPay!');
