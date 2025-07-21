@@ -38,6 +38,38 @@ const createOrder = async (req, res) => {
     res.status(500).json({ message: 'Tạo đơn hàng thất bại' });
   }
 };
+
+const updateOrderStatus = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const {status } = req.body;
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Đơn hàng không tồn tại' });
+    }
+    order.status = status;
+    await order.save();
+    res.json({ message: 'Cập nhật trạng thái đơn hàng thành công', order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Cập nhật trạng thái đơn hàng thất bại' });
+  }
+};
+
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({})
+      .sort({ createdAt: -1 }) // Sắp xếp theo ngày tạo mới nhất
+      .populate('orderItems.product')
+      .populate('orderItems.variant')
+      .populate('address')
+      .populate('user', 'name email'); // Chỉ lấy tên và email của user
+
+    res.json(orders);
+  } catch {
+    res.status(500).json({ message: 'Admin: Không thể lấy đơn hàng' });
+  }
+};
 const getAllMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id })
@@ -140,8 +172,10 @@ const vnpayIpn = async (req, res) => {
 
 module.exports = {
   createOrder,
+  updateOrderStatus,
   getAllMyOrders,
   getMyOrdersById,
   createPaymentUrl,
   vnpayIpn,
+  getAllOrders
 };

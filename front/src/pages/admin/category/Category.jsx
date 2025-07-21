@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from './../../../utils/axios';
+import axiosInstance from '../../../utils/axios';
 import { Plus } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
