@@ -26,6 +26,7 @@ import OrderPage from "./pages/user/OrderPage";
 import OrderDetailPage from "./pages/user/OrderDetailPage";
 import PaymentPage from "./pages/user/PaymentPage";
 import PaymentResult from "./pages/user/PaymentResult";
+import ContactPage from "./pages/user/ContactPage";
 
 
 
@@ -76,8 +77,9 @@ function App() {
             <Route path="/order" element={<OrderPage />} />
             <Route path="/order/:id" element={<OrderDetailPage />} />
             <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/payment-result/:orderId" element={<PaymentResult />} />
-            <Route path="/forget-password" element={<ForgetPasswordPage />} />
+              <Route path="/payment-result/:orderId" element={<PaymentResult />} />
+            <Route path="/contact" element={<ContactPage />} />
+            
           </Route>
 
 

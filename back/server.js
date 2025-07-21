@@ -14,7 +14,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const bannerRoutes = require("./routes/bannerRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const forgetPasswordRoutes = require("./routes/ForgetPasswordRoutes");
-
+const emailRoutes = require("./routes/emailRoutes");
 const allowedOrigins = [
   "http://localhost:3000", // phát triển local
   process.env.FRONT_END, // thay bằng tên thật của app bạn trên Vercel
@@ -65,6 +65,9 @@ try {
 
   app.use("/api/forget", forgetPasswordRoutes);
   console.log("/api/forget routes loaded");
+
+  app.use("/api/email", emailRoutes);
+  console.log("/api/email routes loaded");
 
 } catch (err) {
   console.error("Error when loading routes:", err.message);
