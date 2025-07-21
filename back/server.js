@@ -16,7 +16,7 @@ const categoryRoutes = require("./routes/categoryRoutes");
 
 const allowedOrigins = [
   "http://localhost:3000", // phát triển local
-  "https://v-sport-minhvi2004s-projects.vercel.app/", // thay bằng tên thật của app bạn trên Vercel
+  "https://v-sport-j6eek7mm2-minhvi2004s-projects.vercel.app", // thay bằng tên thật của app bạn trên Vercel
 ];
 
 app.use(
