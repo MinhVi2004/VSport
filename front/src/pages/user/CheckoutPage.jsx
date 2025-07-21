@@ -182,7 +182,7 @@ const CheckoutPage = () => {
                 {
                     orderId,
                     totalAmount: 10,
-                    orderDesc: 'Thanh toán đơn hàng bằng VNPay',
+                    orderDesc: 'Thanh toan bang VNPay',
                 },
                 {
                     headers: {
