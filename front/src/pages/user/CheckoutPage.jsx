@@ -149,6 +149,7 @@ const CheckoutPage = () => {
             );
             // console.log('createOrderRes', createOrderRes);
             const orderId = createOrderRes.data._id;
+
             if (paymentMethod === 'COD') {
                 toast.success('Đặt hàng thành công với phương thức COD!');
                 navigate(`/payment-result/${orderId}`);
