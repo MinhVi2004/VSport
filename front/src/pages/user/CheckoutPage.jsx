@@ -163,6 +163,7 @@ const CheckoutPage = () => {
                 //     }
                 // );
                 const updateStatus = await axiosInstance.put(`/api/order/pay/${orderId}`);
+
                 // navigate('/payment', { state: { qrUrl: res.data.url } });
                 toast.success('Đặt hàng thành công với phương thức VNPay!');
                 navigate(`/payment-result/${orderId}`); // hoặc chuyển sang trang lịch sử đơn hàng
