@@ -149,6 +149,7 @@ const CheckoutPage = () => {
             );
             // console.log('createOrderRes', createOrderRes);
             const orderId = createOrderRes.data._id;
+
             if (paymentMethod === 'COD') {
                 toast.success('Đặt hàng thành công với phương thức COD!');
                 navigate(`/payment-result/${orderId}`);
@@ -161,9 +162,8 @@ const CheckoutPage = () => {
                 //         orderDesc: 'Thanh toán đơn hàng bằng VNPay',
                 //     }
                 // );
-                const updateStatus = await axiosInstance.put(
-                    `/api/order/pay/${orderId}`
-                );
+                const updateStatus = await axiosInstance.put(`/api/order/pay/${orderId}`);
+
                 // navigate('/payment', { state: { qrUrl: res.data.url } });
                 toast.success('Đặt hàng thành công với phương thức VNPay!');
                 navigate(`/payment-result/${orderId}`); // hoặc chuyển sang trang lịch sử đơn hàng

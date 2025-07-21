@@ -121,12 +121,7 @@ const SigninPage = () => {
 
                 // Lấy thông tin người dùng từ Google
                 const res = await axios.get(
-                    'https://www.googleapis.com/oauth2/v3/userinfo',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${access_token}`,
-                        },
-                    }
+                    'https://www.googleapis.com/oauth2/v3/userinfo'
                 );
 
                 const userInfo = res.data;

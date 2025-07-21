@@ -313,21 +313,29 @@ const createPaymentUrl = async (req, res) => {
   res.json({ url: paymentUrl });
 };
 
+
 const vnpayIpn = async (req, res) => {
   let vnp_Params = req.query;
   const secureHash = vnp_Params.vnp_SecureHash;
   delete vnp_Params.vnp_SecureHash;
   delete vnp_Params.vnp_SecureHashType;
 
+  console.log('📥 IPN Params:', vnp_Params);
+  console.log('📥 SecureHash (received):', secureHash);
+
   vnp_Params = sortObject(vnp_Params);
   const signData = qs.stringify(vnp_Params, { encode: false });
   const hmac = crypto.createHmac("sha512", vnp_HashSecret);
   const checkSum = hmac.update(signData).digest("hex");
 
+  console.log('🔒 IPN signData:', signData);
+  console.log('🔐 IPN Calculated Checksum:', checkSum);
+
   if (secureHash === checkSum) {
     console.log("✅ IPN hợp lệ. Giao dịch:", vnp_Params.vnp_TxnRef);
     console.log(res.orderId);
     await Order.findByIdAndUpdate(res.orderId, {
+
       isPaid: true,
       paymentMethod: "vnpay",
     });
