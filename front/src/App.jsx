@@ -22,21 +22,26 @@ import AddressPage from "./pages/user/AddressPage";
 import ProfilePage from "./pages/user/ProfilePage";
 import OrderPage from "./pages/user/OrderPage";
 import OrderDetailPage from "./pages/user/OrderDetailPage";
+import PaymentPage from "./pages/user/PaymentPage";
+import PaymentResult from "./pages/user/PaymentResult";
 
 import Dashboard from "./pages/admin/Dashboard";
 
-import ListBanner from "./pages/admin/banner/ListBanner";
+import Banner from "./pages/admin/banner/Banner";
 import AddBanner from "./pages/admin/banner/AddBanner";
 import UpdateBanner from "./pages/admin/banner/UpdateBanner";
 
-import ListCategory from "./pages/admin/category/ListCategory";
+import Category from "./pages/admin/category/Category";
 import AddCategory from "./pages/admin/category/AddCategory";
 import UpdateCategory from "./pages/admin/category/UpdateCategory";
 
-import ListProduct from "./pages/admin/product/ListProduct";
+import Product from "./pages/admin/product/Product";
 import AddProduct from "./pages/admin/product/AddProduct";
 import UpdateProduct from "./pages/admin/product/UpdateProduct";
 import AddVariant from "./pages/admin/product/AddVariant";
+
+import Order from "./pages/admin/order/Order";
+import OrderDetail from "./pages/admin/order/OrderDetail";
 
 
 function App() {
@@ -61,6 +66,8 @@ function App() {
             <Route path="/profile" element={<ProfilePage/>} />
             <Route path="/order" element={<OrderPage />} />
             <Route path="/order/:id" element={<OrderDetailPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/payment-result" element={<PaymentResult />} />
           </Route>
 
 
@@ -69,19 +76,22 @@ function App() {
             <Route element={<AdminLayout />}>
                 <Route path="" element={<Dashboard />} />
 
-                <Route path="banner" element={<ListBanner/>} />
+                <Route path="banner" element={<Banner/>} />
                 <Route path="banner/add" element={<AddBanner />} />
                 <Route path="banner/update/:id" element={<UpdateBanner />} />
 
 
-                <Route path="category" element={<ListCategory />} />
+                <Route path="category" element={<Category />} />
                 <Route path="category/add" element={<AddCategory />} />
                 <Route path="category/update/:id" element={<UpdateCategory />} />
 
-                <Route path="/admin/product" element={<ListProduct />} />
+                <Route path="/admin/product" element={<Product />} />
                 <Route path="/admin/product/add" element={<AddProduct />} />
                 <Route path="/admin/product/update/:id" element={<UpdateProduct />} />
                 <Route path="/admin/product/variant/:id" element={<AddVariant />} />
+
+                <Route path="order" element={<Order />} />
+                <Route path="order/:id" element={<OrderDetail />} />
 
           </Route>
           </Route>
