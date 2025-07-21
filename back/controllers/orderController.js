@@ -117,7 +117,8 @@ const createPaymentUrl = async (req, res) => {
   const { totalAmount, orderId, orderDesc } = req.body;
 
   const createDate = new Date().toISOString().replace(/[-T:Z.]/g, '').slice(0, 14);
-  const ipAddr = req.ip || '127.0.0.1';
+  const ipAddr = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1';
+
 
   const vnp_Params = {
     vnp_Version: '2.1.0',
