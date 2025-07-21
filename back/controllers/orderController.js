@@ -119,7 +119,6 @@ const createPaymentUrl = async (req, res) => {
   const createDate = new Date().toISOString().replace(/[-T:Z.]/g, '').slice(0, 14);
   const ipAddr = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1';
 
-
   const vnp_Params = {
     vnp_Version: '2.1.0',
     vnp_Command: 'pay',
@@ -143,8 +142,15 @@ const createPaymentUrl = async (req, res) => {
   sortedParams.vnp_SecureHash = secureHash;
 
   const paymentUrl = `${vnp_Url}?${qs.stringify(sortedParams, { encode: false })}`;
+
+  console.log('💰 VNPay Params:', sortedParams);
+  console.log('🔒 Sign Data:', signData);
+  console.log('🔐 Secure Hash:', secureHash);
+  console.log('🌐 Payment URL:', paymentUrl);
+
   res.json({ url: paymentUrl });
 }
+
 
 const vnpayIpn = async (req, res) => {
   let vnp_Params = req.query;
@@ -152,22 +158,32 @@ const vnpayIpn = async (req, res) => {
   delete vnp_Params.vnp_SecureHash;
   delete vnp_Params.vnp_SecureHashType;
 
+  console.log('📥 IPN Params:', vnp_Params);
+  console.log('📥 SecureHash (received):', secureHash);
+
   vnp_Params = sortObject(vnp_Params);
   const signData = qs.stringify(vnp_Params, { encode: false });
   const hmac = crypto.createHmac('sha512', vnp_HashSecret);
   const checkSum = hmac.update(signData).digest('hex');
 
+  console.log('🔒 IPN signData:', signData);
+  console.log('🔐 IPN Calculated Checksum:', checkSum);
+
   if (secureHash === checkSum) {
     console.log('✅ IPN hợp lệ. Giao dịch:', vnp_Params.vnp_TxnRef);
+    const orderId = vnp_Params.vnp_TxnRef;
+
     await Order.findByIdAndUpdate(orderId, {
       isPaid: true,
       paymentMethod: 'vnpay',
     });
+
     res.status(200).json({ RspCode: '00', Message: 'Success' });
   } else {
+    console.warn('❌ IPN Checksum failed!');
     res.status(200).json({ RspCode: '97', Message: 'Checksum failed' });
   }
-}
+};
 
 
 
