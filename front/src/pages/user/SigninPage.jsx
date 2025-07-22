@@ -7,10 +7,11 @@ import { X } from 'lucide-react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { FcGoogle } from 'react-icons/fc'; // Google icon
 import { FaFacebook } from 'react-icons/fa';
-import { jwtDecode } from 'jwt-decode';
 
 import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+
+
 const SigninPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -78,7 +79,7 @@ const SigninPage = () => {
 
         if (localCart.length > 0) {
             try {
-                await axiosInstance.post('/api/cart/merge', {
+                await axios.post(BACKEND_URL+'api/cart/merge', {
                     items: localCart,
                 });
                 localStorage.removeItem('cart');
