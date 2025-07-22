@@ -1,8 +1,8 @@
-// src/components/AdminRoute.jsx
+// src/components/StaffRoute.jsx
 import { Navigate, Outlet } from "react-router-dom";
 import {toast} from "react-toastify";
 
-const AdminRoute = () => {
+const StaffRoute = () => {
   const storedUser = JSON.parse(sessionStorage.getItem("user"));
 
   if (!storedUser) {
@@ -11,7 +11,7 @@ const AdminRoute = () => {
     return <Navigate to="/signin" />;
   }
 
-  if (storedUser.role !== "admin") {
+  if (storedUser.role !== "staff") {
     toast.error("Bạn không có quyền truy cập trang này.");
     // Không phải admin
     return <Navigate to="/" />;
@@ -20,4 +20,4 @@ const AdminRoute = () => {
   return <Outlet />;
 };
 
-export default AdminRoute;
+export default StaffRoute;

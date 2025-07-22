@@ -82,7 +82,7 @@ const ListProduct = () => {
                                           key={pro._id}
                                           onClick={() =>
                                                 navigate(
-                                                      `/admin/product/update/${pro._id}`
+                                                      `/admin/product/${pro._id}`
                                                 )
                                           }
                                           className="hover:bg-gray-50 cursor-pointer transition"

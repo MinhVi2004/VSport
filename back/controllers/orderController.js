@@ -6,6 +6,60 @@ const qs = require("qs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
+const createOrder = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { address, orderItems, paymentMethod, totalAmount } = req.body;
+
+    if (!orderItems || orderItems.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Không có sản phẩm trong đơn hàng" });
+    }
+
+    const newOrder = await Order.create({
+      user: userId,
+      address,
+      orderItems,
+      paymentMethod,
+      totalAmount,
+    });
+
+    // Populate sau khi tạo
+    const populatedOrder = await Order.findById(newOrder._id)
+      .populate("orderItems.product")
+      .populate("orderItems.variant")
+      .populate("address")
+      .populate("user", "name email");
+    //  clear cart after order
+    await Cart.findOneAndUpdate({ user: userId }, { items: [] });
+
+    //? Gửi email xác nhận đơn hàng
+    if (populatedOrder.user?.email) {
+      const transporter = nodemailer.createTransport({
+        service: "Gmail", // hoặc dùng SMTP của bên khác như Mailtrap, SendGrid...
+        auth: {
+          user: process.env.EMAIL_USER, // ví dụ: your-email@gmail.com
+          pass: process.env.EMAIL_PASS, // mật khẩu ứng dụng
+        },
+      });
+      const emailHTML = buildOrderEmailHTML(populatedOrder);
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: populatedOrder.user.email,
+        subject: "Xác nhận đơn đặt hàng - VSport",
+        html: emailHTML,
+      };
+
+      await transporter.sendMail(mailOptions);
+    }
+
+    res.status(201).json(populatedOrder);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Tạo đơn hàng thất bại" });
+  }
+};
 const buildOrderEmailHTML = (order) => {
   const productListHTML = order.orderItems
     .map((item) => {
@@ -106,60 +160,6 @@ const buildOrderEmailHTML = (order) => {
   `;
 };
 
-const createOrder = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const { address, orderItems, paymentMethod, totalAmount } = req.body;
-
-    if (!orderItems || orderItems.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Không có sản phẩm trong đơn hàng" });
-    }
-
-    const newOrder = await Order.create({
-      user: userId,
-      address,
-      orderItems,
-      paymentMethod,
-      totalAmount,
-    });
-
-    // Populate sau khi tạo
-    const populatedOrder = await Order.findById(newOrder._id)
-      .populate("orderItems.product")
-      .populate("orderItems.variant")
-      .populate("address")
-      .populate("user", "name email");
-    //  clear cart after order
-    await Cart.findOneAndUpdate({ user: userId }, { items: [] });
-
-    //? Gửi email xác nhận đơn hàng
-    if (populatedOrder.user?.email) {
-      const transporter = nodemailer.createTransport({
-        service: "Gmail", // hoặc dùng SMTP của bên khác như Mailtrap, SendGrid...
-        auth: {
-          user: process.env.EMAIL_USER, // ví dụ: your-email@gmail.com
-          pass: process.env.EMAIL_PASS, // mật khẩu ứng dụng
-        },
-      });
-      const emailHTML = buildOrderEmailHTML(populatedOrder);
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: populatedOrder.user.email,
-        subject: "Xác nhận đơn đặt hàng - VSport",
-        html: emailHTML,
-      };
-
-      await transporter.sendMail(mailOptions);
-    }
-
-    res.status(201).json(populatedOrder);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Tạo đơn hàng thất bại" });
-  }
-};
 
 const payOrder = async (req, res) => {
   try {

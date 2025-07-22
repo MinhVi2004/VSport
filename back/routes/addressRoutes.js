@@ -3,7 +3,6 @@ const router = express.Router();
 const addressController = require('./../controllers/addressController');
 const { authMiddleware } = require('../middleWare/auth');
 
-
 router.use(authMiddleware);
 // Thêm địa chỉ
 router.post('/',  addressController.addAddress);

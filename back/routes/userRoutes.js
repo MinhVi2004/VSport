@@ -19,8 +19,4 @@ router.put("/:id/promote", authMiddleware, isAdmin, userController.updateUserRol
 
 
 
-// router.get("/", userController.getAllUsers);
-// router.post("/", userController.createUser);
-
-
 module.exports = router;

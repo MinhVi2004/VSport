@@ -7,9 +7,11 @@ const productController = require("../controllers/productController");
 router.post("/", upload.array("images", 6), productController.createProduct);
 router.put("/:id", upload.array("images", 6), productController.updateProduct);
 
-router.get("/category/:id", productController.getAllProductByCategory); 
 router.get("/", productController.getAllProducts);
-router.get("/:id", productController.getProductById); 
+// Đặt cụ thể trước chung chung để tránh nhầm route
+router.get("/category/:id", productController.getAllProductByCategory);
+router.get("/detail/:id", productController.getProductDetailById);
+router.get("/:id", productController.getProductById); // để cuối cùng
 
 router.delete("/:id", productController.deleteProduct);
 

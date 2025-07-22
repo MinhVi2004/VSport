@@ -27,7 +27,7 @@ exports.authMiddleware = (req, res, next) => {
       return res.status(401).json({ message: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại" });
     }
     if (err.name === "JsonWebTokenError") {
-      return res.status(403).json({ message: "Token không hợp lệ" });
+      return res.status(405).json({ message: "Token không hợp lệ" });
     }
     return res.status(500).json({ message: "Lỗi xác thực token", error: err.message });
   }

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
 const {authMiddleware, isAdmin} = require('./../middleWare/auth'); // cần middleware xác thực
-
 router.get('/vnpay_ipn', orderController.vnpayIpn); // Không cần auth
 
 router.use(authMiddleware); // Từ đây trở đi cần auth

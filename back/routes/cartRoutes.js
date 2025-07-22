@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const cartController = require("../controllers/cartController");
-const {authMiddleware} = require("../middleWare/auth");
+const { authMiddleware } = require('../middleWare/auth');
 
-router.use(authMiddleware);
 
 router.get("/", cartController.getCart);
 router.get("/count", authMiddleware, cartController.getCartCount);

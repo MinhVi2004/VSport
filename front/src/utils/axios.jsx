@@ -15,29 +15,25 @@ axiosInstance.interceptors.request.use((config) => {
 
 // Xử lý lỗi token hết hạn hoặc không hợp lệ
 axiosInstance.interceptors.response.use(
-  (response) => response, // Trả response nếu không có lỗi
+  (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Token hết hạn hoặc không hợp lệ
-      console.warn("Token hết hạn hoặc không hợp lệ.");
+    const status = error.response?.status;
+    const code = error.response?.data?.code;
 
-      // Xóa token
-      sessionStorage.clear();
-
-      
-      // Hiển thị thông báo lỗi
-      toast.error("Phiên đăng nhập đã hết hạn. Đang chuyển hướng đến trang đăng nhập...");
-
-      // Delay 1 chút rồi mới chuyển trang
-      setTimeout(() => {
-        window.location.href = "/signin";
-      }, 1500); // 1.5 giây
-      return Promise.reject("Token hết hạn. Vui lòng đăng nhập lại.");
+    if (code === "IS_STAFF") {
+      // Nếu là staff mà truy cập route không dành cho staff → redirect về staff
+      window.location.href = "/staff"; // hoặc navigate("/staff") nếu bên trong component
+    } else if (status === 401 || status === 403) {
+      console.log(error)
+      // sessionStorage.clear();
+      // window.location.href = "/signin"; // logout và điều hướng về signin
+      console.log("VỀ đây")
     }
 
-    // Nếu là lỗi khác, tiếp tục ném lỗi để xử lý bên ngoài
     return Promise.reject(error);
   }
 );
+
+
 
 export default axiosInstance;
