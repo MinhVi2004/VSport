@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
   //   type: String,
   //   enum: ["Nam", "Nữ"],
   // },
-  point:{
+  point: {
     type: Number,
     default: 0,
   },
@@ -27,10 +27,17 @@ const userSchema = new mongoose.Schema({
     enum: ["user", "admin", "staff"],
     default: "user",
   },
-  type:{
+  type: {
     type: String,
     enum: ["normal", "google", "facebook"],
     default: "normal",
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verifyToken: {
+    type: String,
   },
   createdAt: {
     type: Date,

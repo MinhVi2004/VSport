@@ -193,7 +193,10 @@ const SigninPage = () => {
                 email,
                 password,
             });
-
+            if (res.data.user.type === "normal" && !res.data.user.isVerified) {
+                toast.error('Bạn phải kích hoạt Email để đăng nhập!');
+                return
+            }
             const token = res.data.token;
 
             sessionStorage.setItem('token', token);

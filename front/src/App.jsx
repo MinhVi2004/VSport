@@ -13,6 +13,7 @@ import SigninPage from "./pages/user/SigninPage";
 import SignupPage from "./pages/user/SignupPage";
 import ForgetPasswordPage from "./pages/user/ForgetPasswordPage";
 import ResetPasswordPage from "./pages/user/ResetPasswordPage";
+import VerifyEmail  from "./pages/user/VerifyEmail";
 
 
 //? USER
@@ -62,6 +63,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forget-password" element={<ForgetPasswordPage />} />
           <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
 
 
@@ -78,7 +80,6 @@ function App() {
             <Route path="/payment" element={<PaymentPage />} />
               <Route path="/payment-result/:orderId" element={<PaymentResult />} />
             <Route path="/contact" element={<ContactPage />} />
-            
           </Route>
 
 

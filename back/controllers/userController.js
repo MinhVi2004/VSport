@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 // POST thêm người dùng mới
 exports.signupUser = async (req, res) => {
@@ -14,9 +15,59 @@ exports.signupUser = async (req, res) => {
         message: "Email đã được sử dụng, vui lòng sử dụng Email khác.",
       });
     }
-
-    const newUser = new User({ name, email, password: hashedPassword });
+    const payload = {
+      name: name,
+      email: email
+    };
+    const verifyToken = jwt.sign(payload ,process.env.SECRET_KEY, {
+      expiresIn: "15m",
+    });
+    const newUser = new User({ name, email, password: hashedPassword, isVerified:false, verifyToken: verifyToken });
     await newUser.save();
+
+    // Gửi email xác minh
+    const verifyUrl = `${process.env.FRONT_END}/verify-email?token=${verifyToken}`;
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // có thể đổi sang khác nếu dùng SMTP khác
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Xác minh tài khoản của bạn",
+      html: `<div style="font-family: Arial, sans-serif; color: #333; padding: 20px; max-width: 600px; margin: auto; background-color: #f9f9f9; border-radius: 10px;">
+  <h2 style="color: #2e7d32;">Xin chào <strong>${name}</strong>,</h2>
+  
+  <p style="font-size: 16px;">
+    Cảm ơn bạn đã đăng ký tài khoản. Vui lòng bấm vào nút bên dưới để xác minh email và kích hoạt tài khoản:
+  </p>
+
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="${verifyUrl}" 
+       style="display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 6px; font-size: 16px;">
+      Kích hoạt tài khoản
+    </a>
+  </div>
+
+  <p style="font-size: 14px; color: #777;">
+    Nếu bạn không yêu cầu đăng ký, vui lòng bỏ qua email này.
+  </p>
+
+  <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+  <p style="font-size: 12px; color: #aaa; text-align: center;">
+    © 2025 V-Sport. Mọi quyền được bảo lưu.
+  </p>
+</div>
+
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
 
     const userResponse = newUser.toObject();
     delete userResponse.password;
@@ -26,10 +77,36 @@ exports.signupUser = async (req, res) => {
     res.status(400).json({ message: "Đăng ký thất bại", error: err.message });
   }
 };
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ message: "Token không hợp lệ." });
+    }
+
+    // Tìm user có token trùng khớp
+    const user = await User.findOne({ verifyToken: token });
+
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng hoặc token đã hết hạn." });
+    }
+
+    // Cập nhật trạng thái xác minh
+    user.isVerified = true;
+    user.verifyToken = undefined; // Xoá token sau khi dùng
+    await user.save();
+
+    return res.status(200).json({ message: "Tài khoản đã được xác minh thành công!" });
+  } catch (error) {
+    console.error("Lỗi xác minh email:", error);
+    return res.status(500).json({ message: "Lỗi máy chủ. Không thể xác minh email." });
+  }
+};
 exports.signinUserByGoogle = async (req, res) => {
   try {
     const { email, name } = req.body;
-    let user = await User.findOne({ email, type:"google" });
+    let user = await User.findOne({ email, type: "google" });
 
     if (!user) {
       // Nếu đã tồn tại email nhưng với type khác (ví dụ: email), thì báo lỗi
@@ -50,7 +127,9 @@ exports.signinUserByGoogle = async (req, res) => {
       email: user.email,
       role: user.role,
     };
-    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "2h" });
+    const token = jwt.sign(payload, process.env.SECRET_KEY, {
+      expiresIn: "2h",
+    });
 
     const userData = user.toObject();
     delete userData.password;
@@ -77,7 +156,12 @@ exports.signinUserByFacebook = async (req, res) => {
         });
       }
 
-      user = new User({ name, email, password: "facebook-auth", type: "facebook" });
+      user = new User({
+        name,
+        email,
+        password: "facebook-auth",
+        type: "facebook",
+      });
       await user.save();
     }
 
@@ -86,7 +170,9 @@ exports.signinUserByFacebook = async (req, res) => {
       email: user.email,
       role: user.role,
     };
-    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "2h" });
+    const token = jwt.sign(payload, process.env.SECRET_KEY, {
+      expiresIn: "2h",
+    });
 
     const userData = user.toObject();
     delete userData.password;
