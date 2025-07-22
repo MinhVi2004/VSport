@@ -128,7 +128,6 @@ const CheckoutPage = () => {
         }
 
         try {
-            const token = sessionStorage.getItem('token');
             const orderItems = cartItems.map(item => ({
                 product: item.product._id,
                 variant: item.variant?._id,
@@ -154,19 +153,19 @@ const CheckoutPage = () => {
                 toast.success('Đặt hàng thành công với phương thức COD!');
                 navigate(`/payment-result/${orderId}`);
             } else if (paymentMethod === 'vnpay') {
-                // const res = await axiosInstance.post(
-                //     '/api/order/create-vnpay',
-                //     {
-                //         orderId,
-                //         totalAmount: totalPrice,
-                //         orderDesc: 'Thanh toán đơn hàng bằng VNPay',
-                //     }
-                // );
-                const updateStatus = await axiosInstance.put(`/api/order/pay/${orderId}`);
+                const res = await axiosInstance.post(
+                    '/api/order/create-vnpay',
+                    {
+                        orderId,
+                        totalAmount: totalPrice,
+                        orderDesc: 'Thanh toán đơn hàng bằng VNPay',
+                    }
+                );
+                // const updateStatus = await axiosInstance.put(`/api/order/pay/${orderId}`);
 
-                // navigate('/payment', { state: { qrUrl: res.data.url } });
-                toast.success('Đặt hàng thành công với phương thức VNPay!');
-                navigate(`/payment-result/${orderId}`); // hoặc chuyển sang trang lịch sử đơn hàng
+                // toast.success('Đặt hàng thành công với phương thức VNPay!');
+                // navigate(`/payment-result/${orderId}`); // hoặc chuyển sang trang lịch sử đơn hàng
+                navigate('/payment', { state: { qrUrl: res.data.url } });
             }
         } catch (err) {
             console.error(err);
@@ -461,12 +460,21 @@ const CheckoutPage = () => {
                             </div>
                         </div>
 
-                        <button
-                            className="w-full mt-6 bg-blue-600 text-white py-2 rounded-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
-                            onClick={handleConfirm}
-                        >
-                            <CheckCircle size={20} /> Xác nhận thanh toán
-                        </button>
+                        {paymentMethod === 'COD' ? (
+    <button
+        className="w-full mt-6 bg-blue-600 text-white py-2 rounded-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+        onClick={handleConfirm}
+    >
+        <CheckCircle size={20} /> Đặt hàng
+    </button>
+) : (
+    <button
+        className="w-full mt-6 bg-green-500 text-white py-2 rounded-sm hover:bg-green-600 transition-all flex items-center justify-center gap-2"
+        onClick={handleConfirm}
+    >
+        <CheckCircle size={20} /> Thanh toán
+    </button>
+)}
                     </>
                 )}
             </div>

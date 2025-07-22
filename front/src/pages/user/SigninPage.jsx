@@ -11,8 +11,6 @@ import { jwtDecode } from 'jwt-decode';
 
 import axios from 'axios';
 
-
-
 const SigninPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -22,7 +20,7 @@ const SigninPage = () => {
         email: '',
         password: '',
     });
-    
+
     useEffect(() => {
         window.fbAsyncInit = function () {
             window.FB.init({
@@ -34,43 +32,62 @@ const SigninPage = () => {
         };
     }, []);
     const handleFacebookLogin = () => {
-        window.FB.getLoginStatus((response) => {
+        window.FB.getLoginStatus(response => {
             if (response.status !== 'connected') {
-                return window.FB.login((res) => {
-                    if (res.status === 'not_authorized' || !res.authResponse) {
-                        return;
-                    }
+                return window.FB.login(
+                    res => {
+                        if (
+                            res.status === 'not_authorized' ||
+                            !res.authResponse
+                        ) {
+                            return;
+                        }
 
-                    const accessToken = res.authResponse.accessToken;
+                        const accessToken = res.authResponse.accessToken;
 
-                    // Lấy thông tin người dùng
-                    window.FB.api('/me', { fields: 'id,name,email', access_token: accessToken }, (userInfo) => {
-                        handleFacebookLoginToServer(userInfo);
-                    });
-                }, { scope: 'email,public_profile' });
+                        // Lấy thông tin người dùng
+                        window.FB.api(
+                            '/me',
+                            {
+                                fields: 'id,name,email',
+                                access_token: accessToken,
+                            },
+                            userInfo => {
+                                handleFacebookLoginToServer(userInfo);
+                            }
+                        );
+                    },
+                    { scope: 'email,public_profile' }
+                );
             } else {
                 const accessToken = response.authResponse.accessToken;
 
                 // Lấy thông tin người dùng
-                window.FB.api('/me', { fields: 'id,name,email', access_token: accessToken }, (userInfo) => {
+                window.FB.api(
+                    '/me',
+                    { fields: 'id,name,email', access_token: accessToken },
+                    userInfo => {
                         handleFacebookLoginToServer(userInfo);
-                });
+                    }
+                );
             }
         });
     };
-    const mergeLocalCart = async (token) => {
+    const mergeLocalCart = async token => {
         const localCart = JSON.parse(localStorage.getItem('cart')) || [];
 
-            if (localCart.length > 0) {
-                try {
-                    await axiosInstance.post('/api/cart/merge',{ items: localCart });
-                    localStorage.removeItem('cart');
-                    console.log('Local cart đã được đồng bộ vào server.');
-                } catch (mergeErr) {
-                    console.error('Lỗi khi đồng bộ giỏ hàng:', mergeErr);
-                }
+        if (localCart.length > 0) {
+            try {
+                await axiosInstance.post('/api/cart/merge', {
+                    items: localCart,
+                });
+                localStorage.removeItem('cart');
+                console.log('Local cart đã được đồng bộ vào server.');
+            } catch (mergeErr) {
+                console.error('Lỗi khi đồng bộ giỏ hàng:', mergeErr);
             }
-    }
+        }
+    };
 
     const handleFacebookLoginToServer = async userInfo => {
         try {
@@ -121,7 +138,12 @@ const SigninPage = () => {
 
                 // Lấy thông tin người dùng từ Google
                 const res = await axios.get(
-                    'https://www.googleapis.com/oauth2/v3/userinfo'
+                    'https://www.googleapis.com/oauth2/v3/userinfo',
+                    {
+                        headers: {
+                            Authorization: `Bearer ${access_token}`,
+                        },
+                    }
                 );
 
                 const userInfo = res.data;
@@ -251,15 +273,14 @@ const SigninPage = () => {
                             Đăng nhập
                         </button>
                         <div className="text-right mt-2">
-    <button
-        type="button"
-        onClick={() => navigate('/forget-password')}
-        className=" text-blue-500 hover:underline"
-    >
-        Quên mật khẩu?
-    </button>
-</div>
-
+                            <button
+                                type="button"
+                                onClick={() => navigate('/forget-password')}
+                                className=" text-blue-500 hover:underline"
+                            >
+                                Quên mật khẩu?
+                            </button>
+                        </div>
                     </form>
                     <div className="relative my-3">
                         <div className="absolute inset-0 flex items-center">

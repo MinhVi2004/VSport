@@ -5,12 +5,13 @@ import axiosInstance from './../../utils/axios';
 const Banner = () => {
   const [slides, setSlides] = useState([]);
   const [current, setCurrent] = useState(0);
-  const slideRef = useRef(null);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
     const fetchSlides = async () => {
       try {
         const res = await axiosInstance.get('api/banner');
+
         setSlides(res.data);
       } catch (err) {
         console.error('Lỗi khi lấy banner:', err);
@@ -19,13 +20,19 @@ const Banner = () => {
     fetchSlides();
   }, []);
 
-  // Tự động chạy mỗi 5s
   useEffect(() => {
     if (slides.length <= 1) return;
-    const timer = setInterval(() => {
-      nextSlide();
+
+    // Clear interval cũ nếu slides thay đổi
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    intervalRef.current = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % slides.length);
     }, 5000);
-    return () => clearInterval(timer);
+
+    return () => clearInterval(intervalRef.current);
   }, [slides]);
 
   const prevSlide = () => {
@@ -40,11 +47,10 @@ const Banner = () => {
 
   return (
     <div className="relative w-full max-w-screen-xl mx-auto overflow-hidden">
-      {/* Slide wrapper */}
       <div className="relative h-[40vh] sm:h-[60vh]">
         {slides.map((slide, index) => (
           <div
-            key={index}
+            key={slide._id || index}
             className={`absolute top-0 left-0 w-full h-full transition-opacity duration-700 ease-in-out ${
               index === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
             }`}

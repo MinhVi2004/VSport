@@ -294,7 +294,7 @@ const createPaymentUrl = async (req, res) => {
     vnp_TxnRef: orderId,
     vnp_OrderInfo: orderDesc,
     vnp_OrderType: "billpayment",
-    vnp_Amount: totalAmount * 100,
+    vnp_Amount: Math.round(Number(totalAmount) * 100),
     vnp_ReturnUrl,
     vnp_IpAddr: ipAddr,
     vnp_CreateDate: createDate,
@@ -320,19 +320,19 @@ const vnpayIpn = async (req, res) => {
   delete vnp_Params.vnp_SecureHash;
   delete vnp_Params.vnp_SecureHashType;
 
-  console.log('📥 IPN Params:', vnp_Params);
-  console.log('📥 SecureHash (received):', secureHash);
+  console.log(' IPN Params:', vnp_Params);
+  console.log(' SecureHash (received):', secureHash);
 
   vnp_Params = sortObject(vnp_Params);
   const signData = qs.stringify(vnp_Params, { encode: false });
   const hmac = crypto.createHmac("sha512", vnp_HashSecret);
   const checkSum = hmac.update(signData).digest("hex");
 
-  console.log('🔒 IPN signData:', signData);
-  console.log('🔐 IPN Calculated Checksum:', checkSum);
+  console.log(' IPN signData:', signData);
+  console.log(' IPN Calculated Checksum:', checkSum);
 
   if (secureHash === checkSum) {
-    console.log("✅ IPN hợp lệ. Giao dịch:", vnp_Params.vnp_TxnRef);
+    console.log(" IPN hợp lệ. Giao dịch:", vnp_Params.vnp_TxnRef);
     console.log(res.orderId);
     await Order.findByIdAndUpdate(res.orderId, {
 
@@ -344,7 +344,6 @@ const vnpayIpn = async (req, res) => {
     res.status(200).json({ RspCode: "97", Message: "Checksum failed" });
   }
 };
-
 module.exports = {
   createOrder,
   updateOrderStatus,
