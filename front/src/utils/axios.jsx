@@ -1,7 +1,9 @@
 import axios from "axios";
 import { toast } from "react-toastify";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 const axiosInstance = axios.create({
-  baseURL: process.env.BACKEND_URL,
+  baseURL: BACKEND_URL,
 });
 axiosInstance.interceptors.request.use((config) => {
   const token = sessionStorage.getItem('token');
