@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate, useLocation  } from "react-router-dom";
 import {X} from "lucide-react";
 import axios from "axios";
-const BACKEND_URL = import.meta.VITE_BACKEND_URL
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 
 
 const SignupPage = () => {

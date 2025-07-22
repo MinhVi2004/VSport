@@ -10,7 +10,7 @@ import { FaFacebook } from 'react-icons/fa';
 import { jwtDecode } from 'jwt-decode';
 
 import axios from 'axios';
-const BACKEND_URL = import.meta.VITE_BACKEND_URL
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 const SigninPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -112,7 +112,7 @@ const SigninPage = () => {
     };
     const handleGoogleLogin = async userLogin => {
         try {
-            const res = await axios.post(BACKEND_URL + '/api/user/signinByGoogle', {
+            const res = await axios.post(BACKEND_URL + 'api/user/signinByGoogle', {
                 email: userLogin.email,
                 name: userLogin.name,
             });
