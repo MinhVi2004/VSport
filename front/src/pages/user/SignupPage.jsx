@@ -1,8 +1,10 @@
 import { useState } from "react";
-import axiosInstance from "../../utils/axios";
 import { toast } from "react-toastify";
 import { useNavigate, useLocation  } from "react-router-dom";
 import {X} from "lucide-react";
+import axios from "axios";
+const BACKEND_URL = import.meta.VITE_BACKEND_URL
+
 
 const SignupPage = () => {
   const location = useLocation();
@@ -69,7 +71,7 @@ const redirect = new URLSearchParams(location.search).get("redirect") || "/";
     }
 
     try {
-      const res = await axiosInstance.post("api/user/signup", {
+      const res = await axios.post(BACKEND_URL + "api/user/signup", {
         name,
         // gender,
         email,

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation, redirect } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { X } from 'lucide-react';
-import axiosInstance from './../../utils/axios'; // Nếu bạn đang dùng `axiosInstance`, đổi lại cho đúng
+// import axiosInstance from './../../utils/axios'; // Nếu bạn đang dùng `axiosInstance`, đổi lại cho đúng
 
 import { useGoogleLogin } from '@react-oauth/google';
 import { FcGoogle } from 'react-icons/fc'; // Google icon
@@ -10,7 +10,7 @@ import { FaFacebook } from 'react-icons/fa';
 import { jwtDecode } from 'jwt-decode';
 
 import axios from 'axios';
-
+const BACKEND_URL = import.meta.VITE_BACKEND_URL
 const SigninPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -91,7 +91,7 @@ const SigninPage = () => {
 
     const handleFacebookLoginToServer = async userInfo => {
         try {
-            const res = await axiosInstance.post('/api/user/signinByFacebook', {
+            const res = await axios.post(BACKEND_URL + '/api/user/signinByFacebook', {
                 email: userInfo.email,
                 name: userInfo.name,
             });
@@ -112,7 +112,7 @@ const SigninPage = () => {
     };
     const handleGoogleLogin = async userLogin => {
         try {
-            const res = await axiosInstance.post('/api/user/signinByGoogle', {
+            const res = await axios.post(BACKEND_URL + '/api/user/signinByGoogle', {
                 email: userLogin.email,
                 name: userLogin.name,
             });
@@ -188,7 +188,7 @@ const SigninPage = () => {
         }
 
         try {
-            const res = await axiosInstance.post('api/user/signin', {
+            const res = await axios.post(BACKEND_URL + 'api/user/signin', {
                 email,
                 password,
             });
