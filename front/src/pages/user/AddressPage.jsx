@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "../../utils/axios";
 import {Check} from "lucide-react"
+import { toast } from 'react-toastify';
 
 const AddressPage = () => {
   const [addresses, setAddresses] = useState([]);
@@ -29,8 +30,10 @@ const AddressPage = () => {
     e.preventDefault();
     if (isEdit) {
       await axios.put(`/api/address/${editId}`, form);
+      toast.success("Sửa địa chỉ thành công!")
     } else {
       await axios.post("/api/address", form);
+      toast.success("Thêm địa chỉ thành công!")
     }
     resetForm();
     fetchAddresses();
@@ -39,6 +42,7 @@ const AddressPage = () => {
   const handleDelete = async (id) => {
     if (confirm("Bạn có chắc chắn muốn xóa địa chỉ này?")) {
       await axios.delete(`/api/address/${id}`);
+      toast.success("Xóa địa chỉ thành công!")
       fetchAddresses();
     }
   };

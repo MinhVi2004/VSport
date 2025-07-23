@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ProductList from "./ProductList";
 import CartSummary from "./CartSummary";
 import QRScanner from "./QRScanner";
-import axiosInstance from "./../../utils/axios";
+import axiosInstance from "../../utils/axios";
 
 const POSMainPage = () => {
   const [products, setProducts] = useState([]);
@@ -18,7 +18,10 @@ const POSMainPage = () => {
   }, []);
 
   useEffect(() => {
-    const total = cartItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
+    const total = cartItems.reduce(
+      (acc, item) => acc + item.quantity * item.price,
+      0
+    );
     setTotalAmount(total);
   }, [cartItems]);
 
@@ -35,25 +38,30 @@ const POSMainPage = () => {
         )
       );
     } else {
-      setCartItems([...cartItems, { product, quantity: 1, price: product.price }]);
+      setCartItems([
+        ...cartItems,
+        { product, quantity: 1, price: product.price },
+      ]);
     }
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Bên trái: Danh sách sản phẩm (70%) */}
-      <div className="w-[70%] border-r overflow-y-auto p-4">
+    <div className="grid grid-cols-12 h-screen overflow-hidden">
+      <div className="col-span-8 p-6 overflow-y-auto bg-white border-r">
         <ProductList products={products} addToCart={addToCart} />
       </div>
 
-      {/* Bên phải: Giỏ hàng + Thông tin đơn hàng (30%) */}
-      <div className="w-[30%] flex flex-col justify-between p-4 relative">
-        {/* QR Scanner cố định */}
-        <div className="absolute top-4 right-4 w-40 h-40 z-10">
-          <QRScanner onProductScanned={addToCart} />
-        </div>
+      <div className="col-span-4 bg-gray-50 relative p-6">
+        <div className="flex flex-col gap-4 h-full">
+  <div className="h-48 w-full rounded-md bg-white shadow p-2">
+    <QRScanner onProductScanned={addToCart} />
+  </div>
+  <div className="flex-1 overflow-y-auto">
+    <CartSummary cartItems={cartItems} totalAmount={totalAmount} />
+  </div>
+</div>
 
-        <CartSummary cartItems={cartItems} totalAmount={totalAmount} />
+        {/* <CartSummary cartItems={cartItems} totalAmount={totalAmount} /> */}
       </div>
     </div>
   );

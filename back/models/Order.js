@@ -18,11 +18,14 @@ const OrderSchema = new mongoose.Schema({
   address:{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Address",
-    required: true,
+    required: function () {
+    // chỉ bắt buộc địa chỉ nếu không phải mua tại cửa hàng
+        return this.paymentMethod !== "COD_IN_STORE";
+      },
   },
   paymentMethod: {
     type: String,
-    enum: ["COD", "vnpay", "paypal"],
+    enum: ["COD", "vnpay", "paypal", "COD_IN_STORE"],
     default: "COD",
   },
   totalAmount: {
@@ -36,7 +39,7 @@ const OrderSchema = new mongoose.Schema({
   paidAt: Date,
   status: {
     type: String,
-    enum: ["Đang xác nhận", "Đang xử lý", "Đang vận chuyển", "Đã vận chuyển", "Đã hủy"],
+    enum: ["Đang xác nhận", "Đang xử lý", "Đang vận chuyển", "Đã vận chuyển","Hoàn thành", "Đã hủy"],
     default: "Đang xác nhận",
   },
   createdAt: {

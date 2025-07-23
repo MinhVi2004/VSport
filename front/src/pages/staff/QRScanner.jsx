@@ -4,10 +4,7 @@ import axios from "axios";
 
 const QRScanner = ({ onProductScanned }) => {
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner("reader", {
-      fps: 10,
-      qrbox: 250,
-    });
+    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
 
     scanner.render(async (text) => {
       try {

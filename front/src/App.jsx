@@ -30,6 +30,7 @@ import PaymentResult from './pages/user/PaymentResult';
 import ContactPage from './pages/user/ContactPage';
 //? STAFF
 import POSMainPage from './pages/staff/POSMainPage';
+import OrderToday from './pages/staff/OrderToday';
 
 //? ADMIN
 import Dashboard from './pages/admin/AdminDashboard';
@@ -79,38 +80,18 @@ function App() {
 
                             <Route path="banner" element={<Banner />} />
                             <Route path="banner/add" element={<AddBanner />} />
-                            <Route
-                                path="banner/update/:id"
-                                element={<UpdateBanner />}
-                            />
+                            <Route path="banner/update/:id" element={<UpdateBanner />} />
 
                             <Route path="category" element={<Category />} />
-                            <Route
-                                path="category/add"
-                                element={<AddCategory />}
-                            />
-                            <Route
-                                path="category/update/:id"
-                                element={<UpdateCategory />}
-                            />
+                            <Route path="category/add" element={<AddCategory />} />
+                            <Route path="category/update/:id" element={<UpdateCategory />} />
 
                             <Route path="product" element={<Product />} />
-                            <Route
-                                path="product/:id"
-                                element={<ProductDetail />}
+                            <Route path="product/:id" element={<ProductDetail />} />
+                            <Route path="product/add" element={<AddProduct />} />
+                            <Route path="product/update/:id" element={<UpdateProduct />}
                             />
-                            <Route
-                                path="product/add"
-                                element={<AddProduct />}
-                            />
-                            <Route
-                                path="product/update/:id"
-                                element={<UpdateProduct />}
-                            />
-                            <Route
-                                path="product/variant/:id"
-                                element={<AddVariant />}
-                            />
+                            <Route path="product/variant/:id" element={<AddVariant />} />
 
                             <Route path="order" element={<Order />} />
                             <Route path="order/:id" element={<OrderDetail />} />
@@ -151,6 +132,7 @@ function App() {
                     <Route path="/staff" element={<StaffRoute />}>
                         <Route element={<StaffLayout />}>
                             <Route path="" element={<POSMainPage />} />
+                            <Route path="order" element={<OrderToday/>}/>
                         </Route>
                     </Route>
 
