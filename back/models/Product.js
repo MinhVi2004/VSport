@@ -18,19 +18,20 @@ const productSchema = new mongoose.Schema({
       public_id: String,
     },
   ],
+  qrCodeUrl: { type: String , default:""},
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
-productSchema.pre("save", async function (next) {
-  try {
-    // Nếu chưa có qrCodeUrl thì tạo mới
-    if (!this.qrCodeUrl) {
-      const qrData = `${process.env.FRONT_END}/staff/scan/${this._id}`; // sử dụng _id thay vì sku
-      this.qrCodeUrl = await QRCode.toDataURL(qrData);
-    }
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
+// productSchema.pre("save", async function (next) {
+//   try {
+//     // Nếu chưa có qrCodeUrl thì tạo mới
+//     if (!this.qrCodeUrl) {
+//       const qrData = `${process.env.FRONT_END}/staff/scan/${this._id}`; // sử dụng _id thay vì sku
+//       this.qrCodeUrl = await QRCode.toDataURL(qrData);
+//     }
+//     next();
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 module.exports = mongoose.model("Product", productSchema);

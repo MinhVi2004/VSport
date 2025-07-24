@@ -6,7 +6,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-
+import { useNavigate } from "react-router-dom"; // thêm vào đầu file
 // ✅ Định dạng VND
 const formatCurrency = (value) => {
   if (!value && value !== 0) return '';
@@ -31,6 +31,7 @@ const StatCard = ({ label, value, icon: Icon, color }) => (
 
 // ✅ Bảng đơn hàng
 const OrderTable = ({ orders }) => {
+  const navigate = useNavigate();
   if (orders.length === 0) {
     return (
       <div className="text-center text-gray-500 mt-10">
@@ -53,7 +54,7 @@ const OrderTable = ({ orders }) => {
         </thead>
         <tbody>
           {orders.map((order) => (
-            <tr key={order._id} className="border-t hover:bg-gray-50">
+            <tr key={order._id} className="border-t hover:bg-gray-50" onClick={() => navigate(`/staff/order/${order._id}`)}>
               <td className="px-4 py-3 font-medium text-gray-800">{order._id.toUpperCase()}</td>
               <td className="px-4 py-3">{order.user?.name || "N/A"}</td>
               <td className="px-4 py-3 text-green-600 font-medium">
@@ -82,7 +83,7 @@ const OrderToday = () => {
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState({});
   const today = new Date().toLocaleDateString("vi-VN");
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {

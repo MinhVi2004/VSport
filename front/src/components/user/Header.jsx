@@ -138,13 +138,13 @@ const Header = () => {
                                     <Home size={22} />
                                     Địa chỉ
                                 </Link>
-                                <Link
+                                {/* <Link
                                     to="/profile/points"
                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100  flex gap-4 items-center"
                                 >   
                                     <CreditCard size={22} />
                                     Điểm tích lũy
-                                </Link>
+                                </Link> */}
                                 {user.role === 'admin' && (
                                     <Link
                                         to="/admin"

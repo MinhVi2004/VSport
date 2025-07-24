@@ -8,7 +8,8 @@ router.use(authMiddleware); // Từ đây trở đi cần auth
 
 // 👇 Đặt route admin lên TRƯỚC
 router.get('/admin', isAdmin, orderController.getAllOrders);
-router.get('/admin/:id', isAdmin, orderController.getOrderById);
+router.get('/admin/user/:id', isAdmin, orderController.getOrderByUserId);
+router.get('/admin/:id', orderController.getOrderById);
 router.put('/admin/:id', isAdmin, orderController.updateOrderStatus);
 
 // 👇 Các route còn lại

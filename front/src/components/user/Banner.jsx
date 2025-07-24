@@ -8,17 +8,25 @@ const Banner = () => {
   const intervalRef = useRef(null);
 
   useEffect(() => {
-    const fetchSlides = async () => {
-      try {
-        const res = await axiosInstance.get('api/banner');
+  const fetchSlides = async () => {
+    try {
+      const res = await axiosInstance.get('api/banner');
+      const data = res.data;
 
-        setSlides(res.data);
-      } catch (err) {
-        console.error('Lỗi khi lấy banner:', err);
+      setSlides(data);
+
+      if (data.length > 0) {
+        // Chọn ngẫu nhiên 1 index trong danh sách banner
+        const randomIndex = Math.floor(Math.random() * data.length);
+        setCurrent(randomIndex);
       }
-    };
-    fetchSlides();
-  }, []);
+    } catch (err) {
+      console.error('Lỗi khi lấy banner:', err);
+    }
+  };
+  fetchSlides();
+}, []);
+
 
   useEffect(() => {
     if (slides.length <= 1) return;

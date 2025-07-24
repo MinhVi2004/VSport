@@ -10,13 +10,15 @@ const OrderPage = () => {
     const [isPaidFilter, setIsPaidFilter] = useState('Tất cả');
 
     const statuses = [
-        'Tất cả',
-        'Đang xác nhận',
-        'Đang xử lý',
-        'Đang vận chuyển',
-        'Đã vận chuyển',
-        'Đã hủy',
-    ];
+    'Tất cả',
+    'Đang xác nhận',
+    'Đang xử lý',
+    'Đang vận chuyển',
+    'Đã vận chuyển',
+    'Hoàn thành',
+    'Đã hủy',
+];
+
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -47,22 +49,25 @@ const OrderPage = () => {
 
     // Màu badge theo trạng thái
     const getStatusBadge = status => {
-        const base = 'text-xs font-medium px-2 py-1 rounded-full inline-block';
-        switch (status) {
-            case 'Đang xác nhận':
-                return `${base} bg-yellow-100 text-yellow-700`;
-            case 'Đang xử lý':
-                return `${base} bg-purple-100 text-purple-700`;
-            case 'Đang vận chuyển':
-                return `${base} bg-blue-100 text-blue-700`;
-            case 'Đã vận chuyển':
-                return `${base} bg-green-100 text-green-700`;
-            case 'Đã hủy':
-                return `${base} bg-red-100 text-red-600`;
-            default:
-                return `${base} bg-gray-100 text-gray-700`;
-        }
-    };
+    const base = 'text-xs font-medium px-2 py-1 rounded-full inline-block';
+    switch (status) {
+        case 'Đang xác nhận':
+            return `${base} bg-yellow-100 text-yellow-700`;
+        case 'Đang xử lý':
+            return `${base} bg-purple-100 text-purple-700`;
+        case 'Đang vận chuyển':
+            return `${base} bg-blue-100 text-blue-700`;
+        case 'Đã vận chuyển':
+            return `${base} bg-indigo-100 text-indigo-700`;
+        case 'Hoàn thành':
+            return `${base} bg-green-100 text-green-700`;
+        case 'Đã hủy':
+            return `${base} bg-red-100 text-red-600`;
+        default:
+            return `${base} bg-gray-100 text-gray-700`;
+    }
+};
+
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
@@ -128,7 +133,7 @@ const OrderPage = () => {
                                             #{order._id.toUpperCase()}
                                         </td>
                                         <td className="px-4 py-3">
-                                            {order.user?.name || 'N/A'}
+                                            {order.user?.name}
                                         </td>
                                         <td className="px-4 py-3 text-black font-semibold">
                                             {order.totalAmount?.toLocaleString()}
@@ -157,7 +162,7 @@ const OrderPage = () => {
                                         <td className="px-4 py-3 text-gray-600">
                                             {new Date(
                                                 order.createdAt
-                                            ).toLocaleDateString()}
+                                            ).toLocaleString()}
                                         </td>
                                     </tr>
                                 ))

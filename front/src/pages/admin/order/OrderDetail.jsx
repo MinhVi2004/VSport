@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from './../../../utils/axios';
 import { X, CheckCircle, Save , XCircle} from 'lucide-react';
-
+import { toast } from 'react-toastify';
 const OrderDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -15,7 +15,26 @@ const OrderDetail = () => {
         'Đang vận chuyển',
         'Đã vận chuyển',
         'Đã hủy',
+        'Hoàn thành'
     ];
+    const getStatusColorClass = (status) => {
+    switch (status) {
+        case 'Đang xác nhận':
+            return 'text-yellow-600 bg-yellow-50';
+        case 'Đang xử lý':
+            return 'text-purple-600 bg-purple-50';
+        case 'Đang vận chuyển':
+            return 'text-blue-600 bg-blue-50';
+        case 'Đã vận chuyển':
+            return 'text-indigo-600 bg-indigo-50';
+        case 'Hoàn thành':
+            return 'text-green-600 bg-green-50';
+        case 'Đã hủy':
+            return 'text-red-600 bg-red-50';
+        default:
+            return 'text-gray-700 bg-gray-50';
+    }
+};
 
     useEffect(() => {
         const fetchOrder = async () => {
@@ -36,16 +55,16 @@ const OrderDetail = () => {
 
     const handleUpdateStatus = async () => {
         if (status === order.status) {
-            alert('Bạn chưa thay đổi trạng thái đơn hàng.');
+            toast.error('Bạn chưa thay đổi trạng thái đơn hàng.');
             return;
         }
 
         try {
             await axiosInstance.put(`api/order/admin/${id}`, { status });
-            alert('Cập nhật trạng thái thành công!');
-            navigate('/admin/orders');
+            toast.success('Cập nhật trạng thái thành công!');
+            navigate('/admin/order');
         } catch (err) {
-            alert('Cập nhật thất bại.');
+            toast.error('Cập nhật thất bại.');
             console.error(err);
         }
     };
@@ -99,10 +118,11 @@ const OrderDetail = () => {
                 <div className="flex items-center gap-2">
                     <label className="font-medium">Trạng thái đơn hàng:</label>
                     <select
-                        className="border px-3 py-1 rounded bg-gray-50"
-                        value={status}
-                        onChange={e => setStatus(e.target.value)}
-                    >
+    className={`border px-3 py-1 rounded font-semibold transition ${getStatusColorClass(status)}`}
+    value={status}
+    onChange={e => setStatus(e.target.value)}
+>
+
                         {statuses.map(s => (
                             <option key={s} value={s}>
                                 {s}

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SidebarProfile from './../../components/user/SideBarProfile';
-import { Menu } from 'lucide-react'; // icon menu
+import { Menu } from 'lucide-react';
 
 const ProfilePage = () => {
     const [user, setUser] = useState(null);
@@ -18,30 +17,11 @@ const ProfilePage = () => {
         }
     }, []);
 
-    const handleLogout = () => {
-        sessionStorage.removeItem('token');
-        sessionStorage.removeItem('user');
-        navigate('/signin');
-    };
-
     if (!user) return <div className="text-center mt-10">Đang tải...</div>;
 
     return (
-        <div className="flex bg-gray-50 relative"  style={{ height: 'calc(100vh - 5rem)' }}>
-            {/* Sidebar (ẩn trên mobile, hiện trên md) */}
-            <div
-                className={`fixed z-20 top-0 left-0 h-full bg-white shadow-md transition-transform transform md:relative md:translate-x-0
-                ${
-                    sidebarOpen
-                        ? 'translate-x-0 w-64'
-                        : '-translate-x-full md:w-64'
-                }
-            `}
-            >
-                <SidebarProfile onLogout={handleLogout} user={user} />
-            </div>
-
-            {/* Toggle button (chỉ hiện trên mobile) */}
+        <div className="flex bg-gray-50 relative justify-center items-center" style={{ height: 'calc(100vh - 5rem)' }}>
+            {/* Toggle menu button (for mobile) */}
             <button
                 className="absolute top-4 left-4 z-30 md:hidden bg-white border p-2 rounded-full shadow"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -50,13 +30,14 @@ const ProfilePage = () => {
             </button>
 
             {/* Main content */}
-            <div className="flex-1 p-6">
-                <div className="max-w-2xl mx-auto bg-white shadow-md rounded-md p-6 border border-gray-200">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
-                        Hồ sơ cá nhân
-                    </h2>
+            <div className="bg-white shadow-md rounded-xl border border-gray-200 p-8 w-full max-w-4xl">
+                <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+                    Hồ sơ cá nhân
+                </h2>
 
-                    <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    {/* Thông tin bên trái */}
+                    <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-600 mb-1">
                                 Email
@@ -65,7 +46,7 @@ const ProfilePage = () => {
                                 type="email"
                                 value={user.email || ''}
                                 disabled
-                                className="w-full border rounded-sm px-4 py-2 bg-gray-100 cursor-not-allowed"
+                                className="w-full border rounded-md px-4 py-2 bg-gray-100 cursor-not-allowed"
                             />
                         </div>
 
@@ -77,22 +58,23 @@ const ProfilePage = () => {
                                 type="text"
                                 value={user.name || ''}
                                 disabled
-                                className="w-full border rounded-sm px-4 py-2 bg-gray-100 cursor-not-allowed"
+                                className="w-full border rounded-md px-4 py-2 bg-gray-100 cursor-not-allowed"
                             />
                         </div>
-
-                        {/* Nút đổi mật khẩu */}
-                        <div className="pt-4">
-                            <button
-                                onClick={() =>
-                                    navigate('/profile/changePassword')
-                                }
-                                className="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-sm hover:bg-blue-600 transition duration-200"
-                            >
-                                Đổi mật khẩu
-                            </button>
-                        </div>
                     </div>
+
+                    {/* Nút thao tác bên phải */}
+                    <div class="h-full flex flex-col justify-end p-4">
+  <div class="space-y-4">
+    {/* <button class="w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-600 transition">
+      Cập nhật thông tin
+    </button> */}
+    <button class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition">
+      Đổi mật khẩu
+    </button>
+  </div>
+</div>
+
                 </div>
             </div>
         </div>

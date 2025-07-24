@@ -287,6 +287,35 @@ exports.updateUserRole = async (req, res) => {
       .json({ message: "Lỗi khi cập nhật quyền", error: err.message });
   }
 };
+exports.blockUserRole = async (req, res) => {
+  try {
+    const { status  } = req.body;
+
+    if (typeof status !== "boolean") {
+      return res.status(400).json({ message: "Vui lòng cung cấp trạng thái (true/false)" });
+    }
+
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { status  },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    const userResponse = updatedUser.toObject();
+    delete userResponse.password;
+
+    res.json({ message: "Cập nhật trạng thái thành công", user: userResponse });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Lỗi khi cập nhật trạng thái", error: err.message });
+  }
+};
 
 // PUT cập nhật người dùng
 exports.updateUser = async (req, res) => {

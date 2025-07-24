@@ -42,10 +42,23 @@ const ProductDetail = () => {
               />
             ))}
           </div>
+          {/* QR Code */}  
+{product.qrCodeUrl && (
+  <div>
+    <h4 className="font-semibold mb-2 text-gray-700">Mã QR sản phẩm:</h4>
+    <img
+      src={product.qrCodeUrl}
+      alt="QR Code"
+      className="w-40 h-40 object-contain border rounded p-2"
+    />
+  </div>
+)}
+
         </div>
 
         {/* Thông tin */}
         <div className="space-y-2 text-gray-700">
+          <p><strong>Mã sản phẩm:</strong> {product._id}</p>
           <p><strong>Mô tả:</strong> {product.description}</p>
           <p><strong>Danh mục:</strong> {product.category?.name || 'Không rõ'}</p>
           <p><strong>Giá:</strong> {product.price.toLocaleString()} đ</p>

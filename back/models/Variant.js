@@ -7,18 +7,18 @@ const sizeSchema = new mongoose.Schema({
   price: { type: Number, required: true, min: 0 },
   qrCodeUrl: { type: String, default: "" },
 });
-sizeSchema.pre("save", async function (next) {
-  try {
-    // Nếu chưa có qrCodeUrl thì tạo mới
-    if (!this.qrCodeUrl) {
-      const qrData = `${process.env.FRONT_END}/staff/scan/${this._id}`; // sử dụng _id thay vì sku
-      this.qrCodeUrl = await QRCode.toDataURL(qrData);
-    }
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
+// sizeSchema.pre("save", async function (next) {
+//   try {
+//     // Nếu chưa có qrCodeUrl thì tạo mới
+//     if (!this.qrCodeUrl) {
+//       const qrData = `${process.env.FRONT_END}/staff/scan/${this._id}`; // sử dụng _id thay vì sku
+//       this.qrCodeUrl = await QRCode.toDataURL(qrData);
+//     }
+//     next();
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
 const variantSchema = new mongoose.Schema({
   product: {

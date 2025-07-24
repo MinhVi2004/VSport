@@ -16,6 +16,8 @@ router.put("/:id", userController.updateUser);
 
 router.get("/", authMiddleware, isAdmin, userController.getAllUsers);
 router.put("/:id/promote", authMiddleware, isAdmin, userController.updateUserRole);
+router.put("/:id/block", authMiddleware, isAdmin, userController.blockUserRole);
+
 
 
 

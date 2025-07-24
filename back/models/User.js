@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema({
   verifyToken: {
     type: String,
   },
+  status:{
+    type:Boolean,
+    default:true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

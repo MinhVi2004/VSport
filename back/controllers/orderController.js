@@ -200,10 +200,9 @@ const updateOrderStatus = async (req, res) => {
 const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find({})
-      .populate("orderItems.product")
-      .populate("orderItems.variant")
       .populate("address")
-      .populate("user", "name email") // Chỉ lấy tên và email của user
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });  
 
     res.json(orders);
   } catch {
@@ -229,10 +228,9 @@ const getMyOrdersById = async (req, res) => {
     const orderId = req.params.id;
 
     const order = await Order.findOne({ _id: orderId, user: userId })
-      .populate("orderItems.product")
-      .populate("orderItems.variant")
       .populate("address")
-      .populate("user", "name email");
+      .populate("user", "name email")
+      .sort({ createdAt: -1 }); 
 
     if (!order) {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
@@ -251,7 +249,8 @@ const getOrderById = async (req, res) => {
       .populate("orderItems.product")
       .populate("orderItems.variant")
       .populate("address")
-      .populate("user", "name email");
+      .populate("user", "name email")
+      .sort({ createdAt: -1 }); // ✅ Sắp xếp giảm dần theo thời gian
     if (!order) {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
     }
@@ -261,6 +260,29 @@ const getOrderById = async (req, res) => {
     res.status(500).json({ message: "Lỗi khi lấy đơn hàng" });
   }
 };
+const getOrderByUserId = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const orders = await Order.find({ user: userId })
+      .populate("orderItems.product")
+      .populate("orderItems.variant")
+      .populate("address")
+      .populate("user", "name email")
+      .sort({ createdAt: -1 }); // ✅ Sắp xếp giảm dần theo thời gian
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    }
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi khi lấy đơn hàng", error: error.message });
+  }
+};
+
+
 const vnp_TmnCode = process.env.VNP_TMNCODE;
 const vnp_HashSecret = process.env.VNP_HASHSECRET;
 const vnp_Url = process.env.VNP_URL;
@@ -354,4 +376,5 @@ module.exports = {
   vnpayIpn,
   getAllOrders,
   getOrderById,
+  getOrderByUserId,
 };

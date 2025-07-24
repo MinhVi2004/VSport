@@ -53,17 +53,35 @@ const ContactPage = () => {
         {/* Thông tin liên hệ */}
         <div className="space-y-5 text-gray-800">
           <h2 className="text-2xl font-semibold mb-2">Thông tin liên hệ</h2>
+          <a
+  href="https://maps.app.goo.gl/NoMTMFnsjyMvvSsu8"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center gap-2 hover:underline text-black-700"
+>
+  <MapPin  className="w-8"/> Trường Đại học Sài Gòn, Quận 5, TP.HCM
+</a>
+
+          <a
+  href="https://zalo.me/0772912452"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center gap-2 hover:underline text-black-700"
+>
+  <img src="website/zalo.png" className="w-8"/> 0772 912 452
+</a>
+<a href="tel:0772912452" className="flex items-center gap-2 hover:underline text-black-700">
+  <Phone  className="w-8"/> 0772 912 452
+</a>
+
+          <a
+  href="mailto:dvmv2017@gmail.com"
+  className="flex items-center gap-2 hover:underline text-black-700"
+>
+  <Mail className="w-8"/> dvmv2017@gmail.com
+</a>
           <p className="flex items-center gap-2">
-            <MapPin className="text-black-600" /> Trường Đại học Sài Gòn, Quận 5, TP.HCM
-          </p>
-          <p className="flex items-center gap-2">
-            <Phone className="text-black-600" /> 0772 912 452
-          </p>
-          <p className="flex items-center gap-2">
-            <Mail className="text-black-600" /> dvmv2017@gmail.com
-          </p>
-          <p className="flex items-center gap-2">
-            <Clock className="text-black-600" /> Thời gian: 8h - 18h (T2 - T7)
+            <Clock className="text-black-600 w-8" /> Thời gian: 8h - 18h (T2 - T7)
           </p>
         </div>
 

@@ -43,76 +43,57 @@ const MyOrderPage = () => {
     }, []);
 
     return (
-        <div className="max-w-5xl mx-auto px-4 py-6">
+        <div className="max-w-4xl mx-auto px-4 py-6">
             <h1 className="text-2xl font-semibold mb-6">Lịch sử mua hàng</h1>
             {orders.length === 0 ? (
                 <p>Chưa có đơn hàng nào.</p>
             ) : (
                 <div className="space-y-6">
-                    {orders.map(order => (
-                        <Link
-    to={`/order/${order._id}`}
-    key={order._id}
-    className="block border border-gray-200 p-4 rounded-2xl shadow hover:shadow-lg transition-all bg-white"
->
-    {/* Header: Mã đơn + Trạng thái + Ngày tạo */}
-    <div className="flex justify-between items-start mb-4 ">
+  {orders.map(order => (
+    <Link
+      to={`/order/${order._id}`}
+      key={order._id}
+      className="block rounded-xl border border-gray-200 shadow-md hover:shadow-lg transition-all bg-white overflow-hidden"
+    >
+      <div className="p-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
+        {/* Mã đơn và Ngày tạo */}
         <div>
-            {/* <p className="text-xs text-gray-400">Mã đơn hàng:</p> */}
-            {/* <p className="text-sm font-medium text-gray-700">{order._id}</p> */}
-            <p className="text-xs text-gray-500 mt-1">
-                Ngày đặt: {new Date(order.createdAt).toLocaleString()}
-            </p>
+          <p className="text-sm text-gray-500">Mã đơn hàng</p>
+          <p className="text-md font-semibold text-gray-800">{order._id}</p>
+          <p className="text-xs text-gray-400 mt-1">
+            {new Date(order.createdAt).toLocaleString()}
+          </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-sm font-semibold">
+
+        {/* Trạng thái đơn */}
+        <div className="flex items-center gap-2 mt-3 sm:mt-0">
+          <div
+            className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold
+              ${
+                order.status === "Đã giao"
+                  ? "bg-green-100 text-green-700"
+                  : order.status === "Đang giao"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+          >
             {statusIcons[order.status] || <Clock size={16} />}
             <span>{order.status}</span>
+          </div>
         </div>
-    </div>
+      </div>
 
-    {/* Danh sách sản phẩm */}
-    <div className="divide-y border-t">
-        {order.orderItems.map((item, index) => (
-            <div
-                key={index}
-                className="flex gap-4 py-3 items-center"
-            >
-                <img
-                    src={item.product?.images?.[0]?.url}
-                    alt={item.product?.name}
-                    className="w-16 h-16 object-cover rounded-lg border"
-                />
-                <div className="flex-1">
-                    <p className="font-medium text-gray-800">
-                        {item.product?.name}
-                    </p>
-                    {item.variant && (
-                        <p className="text-sm text-gray-500">
-                            Biến thể: {item.variant.color} - {item.variant.size}
-                        </p>
-                    )}
-                    <p className="text-sm text-gray-600">
-                        Số lượng: {item.quantity}
-                    </p>
-                </div>
-                <div className="text-right text-blue-700 font-semibold whitespace-nowrap">
-                    {item.price.toLocaleString()}₫
-                </div>
-            </div>
-        ))}
-    </div>
-
-    {/* Tổng tiền */}
-    <div className="text-right mt-4 border-t pt-3">
-        <span className="text-gray-600">Tổng tiền: </span>
-        <span className="text-red-600 text-lg font-bold">
-            {order.totalAmount.toLocaleString()}₫
+      {/* Tổng tiền */}
+      <div className="bg-gray-50 border-t px-4 py-3 flex justify-between items-center">
+        <span className="text-sm text-gray-600 font-medium">Tổng tiền:</span>
+        <span className="text-lg text-red-600 font-bold">
+          {order.totalAmount.toLocaleString()}₫
         </span>
-    </div>
-</Link>
+      </div>
+    </Link>
+  ))}
+</div>
 
-                    ))}
-                </div>
             )}
         </div>
     );

@@ -31,6 +31,7 @@ import ContactPage from './pages/user/ContactPage';
 //? STAFF
 import POSMainPage from './pages/staff/POSMainPage';
 import OrderToday from './pages/staff/OrderToday';
+import OrderStaffDetail from './pages/staff/OrderStaffDetail';
 
 //? ADMIN
 import Dashboard from './pages/admin/AdminDashboard';
@@ -133,6 +134,7 @@ function App() {
                         <Route element={<StaffLayout />}>
                             <Route path="" element={<POSMainPage />} />
                             <Route path="order" element={<OrderToday/>}/>
+                            <Route path="order/:id" element={<OrderStaffDetail/>} />
                         </Route>
                     </Route>
 
