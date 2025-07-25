@@ -287,6 +287,34 @@ exports.updateUserRole = async (req, res) => {
       .json({ message: "Lỗi khi cập nhật quyền", error: err.message });
   }
 };
+exports.changePassword = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { oldPassword, newPassword } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    }
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Mật khẩu cũ không chính xác' });
+    }
+
+    // 3. Hash mật khẩu mới và cập nhật
+    const hashed = await bcrypt.hash(newPassword, 10);
+    user.password = hashed;
+    await user.save();
+
+     res.json({ message: 'Đổi mật khẩu thành công' , user: user});
+  } catch (err) {
+    console.log(err);
+    res
+      .status(500)
+      .json({ message: "Lỗi khi đổi mật khẩu", error: err.message });
+  }
+};
 exports.blockUserRole = async (req, res) => {
   try {
     const { status  } = req.body;

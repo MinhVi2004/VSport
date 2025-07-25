@@ -228,6 +228,8 @@ const getMyOrdersById = async (req, res) => {
     const orderId = req.params.id;
 
     const order = await Order.findOne({ _id: orderId, user: userId })
+      .populate("orderItems.product")
+      .populate("orderItems.variant")
       .populate("address")
       .populate("user", "name email")
       .sort({ createdAt: -1 }); 
@@ -305,7 +307,8 @@ const createPaymentUrl = async (req, res) => {
     .toISOString()
     .replace(/[-T:Z.]/g, "")
     .slice(0, 14);
-  const ipAddr = req.ip || "127.0.0.1";
+  const ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress || "127.0.0.1";
+
 
   const vnp_Params = {
     vnp_Version: "2.1.0",
@@ -332,6 +335,7 @@ const createPaymentUrl = async (req, res) => {
   const paymentUrl = `${vnp_Url}?${qs.stringify(sortedParams, {
     encode: false,
   })}`;
+  console.log(paymentUrl);
   res.json({ url: paymentUrl });
 };
 
@@ -354,10 +358,10 @@ const vnpayIpn = async (req, res) => {
   console.log(' IPN Calculated Checksum:', checkSum);
 
   if (secureHash === checkSum) {
-    console.log(" IPN hợp lệ. Giao dịch:", vnp_Params.vnp_TxnRef);
-    console.log(res.orderId);
-    await Order.findByIdAndUpdate(res.orderId, {
-
+    const orderId = vnp_Params.vnp_TxnRef;
+    console.log(" vnp_TxnRef :", vnp_Params.vnp_TxnRef);
+    console.log("res.orderId : "+res.orderId);
+    await Order.findByIdAndUpdate(orderId, {
       isPaid: true,
       paymentMethod: "vnpay",
     });

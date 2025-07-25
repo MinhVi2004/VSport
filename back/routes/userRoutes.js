@@ -9,7 +9,8 @@ router.post("/signinByGoogle", userController.signinUserByGoogle);
 router.post("/signinByFacebook", userController.signinUserByFacebook);
 router.get("/verify-email", userController.verifyEmail)
 router.get("/:id", userController.getUserById);
-router.put("/:id", userController.updateUser);
+// router.put("/:id", userController.updateUser);
+router.put("/change-password", authMiddleware, userController.changePassword);
 // router.delete("/:id", userController.deleteUser);
 
 // Route admin cần token và quyền admin

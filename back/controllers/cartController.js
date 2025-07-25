@@ -103,7 +103,7 @@ exports.mergeCart = async (req, res) => {
   try {
     const userId = req.user._id;
     const items = req.body.items;
-
+    console.log(userId);
     let cart = await Cart.findOne({ user: userId });
 
     if (!cart) {

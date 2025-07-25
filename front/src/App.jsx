@@ -23,6 +23,7 @@ import CartPage from './pages/user/CartPage';
 import CheckoutPage from './pages/user/CheckoutPage';
 import AddressPage from './pages/user/AddressPage';
 import ProfilePage from './pages/user/ProfilePage';
+import ChangePasswordPage  from './pages/user/ChangePasswordPage';
 import OrderPage from './pages/user/OrderPage';
 import OrderDetailPage from './pages/user/OrderDetailPage';
 import PaymentPage from './pages/user/PaymentPage';
@@ -64,14 +65,8 @@ function App() {
                 <Routes>
                     <Route path="/signin" element={<SigninPage />} />
                     <Route path="/signup" element={<SignupPage />} />
-                    <Route
-                        path="/forget-password"
-                        element={<ForgetPasswordPage />}
-                    />
-                    <Route
-                        path="/reset-password/:token"
-                        element={<ResetPasswordPage />}
-                    />
+                    <Route path="/forget-password" element={<ForgetPasswordPage />} />
+                    <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     
                     {/* ADMIN  */}
@@ -105,28 +100,17 @@ function App() {
                     <Route path="/" element={<UserRoute />}>
                         <Route element={<UserLayout />}>
                             <Route index element={<HomePage />} />
-                            <Route
-                                path="product/:id"
-                                element={<ProductDetailPage />}
-                            />
-                            <Route path="cart" element={<CartPage />} />
-                            <Route
-                                path="profile/address"
-                                element={<AddressPage />}
-                            />
-                            <Route path="checkout" element={<CheckoutPage />} />
-                            <Route path="profile" element={<ProfilePage />} />
-                            <Route path="order" element={<OrderPage />} />
-                            <Route
-                                path="order/:id"
-                                element={<OrderDetailPage />}
-                            />
-                            <Route path="payment" element={<PaymentPage />} />
-                            <Route
-                                path="payment-result/:orderId"
-                                element={<PaymentResult />}
-                            />
                             <Route path="contact" element={<ContactPage />} />
+                            <Route path="product/:id" element={<ProductDetailPage />} />
+                            <Route path="cart" element={<CartPage />} />
+                            <Route path="checkout" element={<CheckoutPage />} />
+                            <Route path="order" element={<OrderPage />} />
+                            <Route path="order/:id" element={<OrderDetailPage />} />
+                            <Route path="payment" element={<PaymentPage />} />
+                            <Route path="payment-result/:orderId" element={<PaymentResult />} />
+                            <Route path="profile" element={<ProfilePage />} />
+                            <Route path="profile/address" element={<AddressPage />} />
+                            <Route path="change-password" element={<ChangePasswordPage/>} />
                         </Route>
                     </Route>
                     {/* STAFF */}
