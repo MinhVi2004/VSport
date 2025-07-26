@@ -1,4 +1,3 @@
-// src/components/user/ListCategory.jsx
 import { useRef, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -58,43 +57,74 @@ const ListCategory = () => {
 
   return (
     <div className="relative w-full max-w-7xl mx-auto px-4 py-10">
-      <h2 className="text-xl font-semibold mb-4">Xu hướng tìm kiếm</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Xu hướng tìm kiếm</h2>
 
       <div className="relative">
         {showButtons && (
           <button
             onClick={() => scroll("left")}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow p-1 rounded-full"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full hover:scale-105 transition"
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={22} />
           </button>
         )}
 
-        <div ref={containerRef} className="overflow-x-auto no-scrollbar px-8">
-          <div ref={contentRef} className="flex gap-6 w-max">
+        <div
+          ref={containerRef}
+          className="overflow-x-auto no-scrollbar px-10"
+        >
+          <div
+            ref={contentRef}
+            className="flex gap-6 w-max transition-all"
+          >
+            {/* Danh mục tất cả */}
             <div
               onClick={() => handleSelectCategory("")}
-              className={`cursor-pointer flex flex-col items-center ${
-                !selectedCategoryId ? "text-blue-600 font-bold" : ""
-              }`}
+              className={`cursor-pointer flex flex-col items-center min-w-[90px] 
+                ${!selectedCategoryId ? "text-blue-600 font-semibold" : "text-gray-600"} 
+                hover:text-blue-500 transition`}
             >
-              <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+              <div
+                className={`w-20 h-20 rounded-full border-2 
+                  flex items-center justify-center 
+                  text-blue-600 text-sm font-bold
+                  shadow-sm
+                  ${!selectedCategoryId ? "bg-blue-100 border-blue-500" : "bg-gray-100 border-transparent"} 
+                  hover:ring-2 hover:ring-blue-300 transition`}
+              >
                 All
               </div>
-              <span className="mt-2 text-center">Tất cả</span>
+              <span className="mt-2 text-sm text-center">Tất cả</span>
             </div>
+
+            {/* Danh mục từng item */}
             {trendingItems.map((item) => (
               <div
                 key={item._id}
                 onClick={() => handleSelectCategory(item._id)}
-                className={`flex flex-col items-center cursor-pointer hover:text-blue-600 ${
-                  selectedCategoryId === item._id ? "text-blue-600 font-semibold" : ""
-                }`}
+                className={`flex flex-col items-center cursor-pointer min-w-[90px] 
+                  ${
+                    selectedCategoryId === item._id
+                      ? "text-blue-600 font-semibold"
+                      : "text-gray-600"
+                  } hover:text-blue-500 transition`}
               >
-                <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
-                  <img src={item.image} alt={item.name} className="object-contain h-full" />
+                <div
+                  className={`w-20 h-20 rounded-full border-2 overflow-hidden 
+                    flex items-center justify-center shadow-sm bg-white
+                    ${
+                      selectedCategoryId === item._id
+                        ? "border-blue-500 ring-2 ring-blue-300"
+                        : "border-transparent"
+                    } hover:scale-105 transition`}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="object-contain h-16 w-16"
+                  />
                 </div>
-                <span className="mt-2 text-center">{item.name}</span>
+                <span className="mt-2 text-sm text-center">{item.name}</span>
               </div>
             ))}
           </div>
@@ -103,9 +133,9 @@ const ListCategory = () => {
         {showButtons && (
           <button
             onClick={() => scroll("right")}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow p-1 rounded-full"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full hover:scale-105 transition"
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={22} />
           </button>
         )}
       </div>
