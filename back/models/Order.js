@@ -28,6 +28,10 @@ const OrderSchema = new mongoose.Schema({
     enum: ["COD", "vnpay", "paypal", "COD_IN_STORE"],
     default: "COD",
   },
+  retryCount: {
+  type: Number,
+  default: 0,
+},
   totalAmount: {
     type: Number,
     required: true,

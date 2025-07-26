@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import axios from '../../utils/axios';
+import axiosInstance from '../../utils/axios';
 import { toast } from 'react-toastify';
 import {
     Clock,
@@ -26,6 +26,24 @@ const OrderDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [order, setOrder] = useState(null);
+    const handlePayment = async () => {
+        try {
+            const res = await axiosInstance.post('/api/order/create-vnpay', {
+                orderId: id,
+                totalAmount: order.totalAmount,
+                retry: true, // thông báo cho backend rằng đây là thanh toán lại
+            });
+
+            if (res.data.url) {
+                window.location.href = res.data.url; // chuyển hướng đến VNPAY
+            } else {
+                toast.error('Không lấy được link thanh toán');
+            }
+        } catch (err) {
+            toast.error('Lỗi khi tạo thanh toán');
+            console.error(err);
+        }
+    };
 
     useEffect(() => {
         const user = JSON.parse(sessionStorage.getItem('user'));
@@ -44,7 +62,7 @@ const OrderDetailPage = () => {
                     return;
                 }
 
-                const res = await axios.get(`/api/order/${id}`);
+                const res = await axiosInstance.get(`/api/order/${id}`);
                 setOrder(res.data);
             } catch {
                 toast.error('Không thể tải đơn hàng');
@@ -198,6 +216,16 @@ const OrderDetailPage = () => {
                                 {order.totalAmount.toLocaleString()}₫
                             </span>
                         </div>
+                        {!order.isPaid && (
+                            <div className="mt-6">
+                                <button
+                                    onClick={handlePayment}
+                                    className="w-full py-2 px-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+                                >
+                                    Thanh toán ngay
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

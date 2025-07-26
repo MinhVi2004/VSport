@@ -1,65 +1,25 @@
 const Order = require("./../models/Order");
 const Cart = require("./../models/Cart");
 const User = require("./../models/User");
-
-const qs = require("qs");
-const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const querystring = require("querystring");
 
-const createOrder = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const { address, orderItems, paymentMethod, totalAmount } = req.body;
+const {
+  VNPay,
+  ignoreLogger,
+  ProductCode,
+  VnpLocale,
+  dateFormat,
+} = require("vnpay");
 
-    if (!orderItems || orderItems.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Không có sản phẩm trong đơn hàng" });
-    }
-
-    const newOrder = await Order.create({
-      user: userId,
-      address,
-      orderItems,
-      paymentMethod,
-      totalAmount,
-    });
-
-    // Populate sau khi tạo
-    const populatedOrder = await Order.findById(newOrder._id)
-      .populate("orderItems.product")
-      .populate("orderItems.variant")
-      .populate("address")
-      .populate("user", "name email");
-    //  clear cart after order
-    await Cart.findOneAndUpdate({ user: userId }, { items: [] });
-
-    //? Gửi email xác nhận đơn hàng
-    if (populatedOrder.user?.email) {
-      const transporter = nodemailer.createTransport({
-        service: "Gmail", // hoặc dùng SMTP của bên khác như Mailtrap, SendGrid...
-        auth: {
-          user: process.env.EMAIL_USER, // ví dụ: your-email@gmail.com
-          pass: process.env.EMAIL_PASS, // mật khẩu ứng dụng
-        },
-      });
-      const emailHTML = buildOrderEmailHTML(populatedOrder);
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: populatedOrder.user.email,
-        subject: "Xác nhận đơn đặt hàng - VSport",
-        html: emailHTML,
-      };
-
-      await transporter.sendMail(mailOptions);
-    }
-
-    res.status(201).json(populatedOrder);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Tạo đơn hàng thất bại" });
-  }
-};
+const vnpay = new VNPay({
+  tmnCode: process.env.VNP_TMNCODE,
+  secureSecret: process.env.VNP_HASHSECRET,
+  vnpayHost: process.env.VNP_URL,
+  testMode: true,
+  hashAlgorithm: "SHA512",
+  loggerFn: ignoreLogger,
+});
 const buildOrderEmailHTML = (order) => {
   const productListHTML = order.orderItems
     .map((item) => {
@@ -160,7 +120,6 @@ const buildOrderEmailHTML = (order) => {
   `;
 };
 
-
 const payOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -202,7 +161,7 @@ const getAllOrders = async (req, res) => {
     const orders = await Order.find({})
       .populate("address")
       .populate("user", "name email")
-      .sort({ createdAt: -1 });  
+      .sort({ createdAt: -1 });
 
     res.json(orders);
   } catch {
@@ -225,14 +184,17 @@ const getAllMyOrders = async (req, res) => {
 const getMyOrdersById = async (req, res) => {
   try {
     const userId = req.user._id;
-    const orderId = req.params.id;
+    let orderId = req.params.id;
 
+    if (orderId.includes('_')) {
+      orderId = orderId.split('_')[0]; // Nếu có dấu "_" => là retry
+    }
     const order = await Order.findOne({ _id: orderId, user: userId })
       .populate("orderItems.product")
       .populate("orderItems.variant")
       .populate("address")
       .populate("user", "name email")
-      .sort({ createdAt: -1 }); 
+      .sort({ createdAt: -1 });
 
     if (!order) {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
@@ -280,96 +242,155 @@ const getOrderByUserId = async (req, res) => {
     res.status(200).json(orders);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Lỗi khi lấy đơn hàng", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Lỗi khi lấy đơn hàng", error: error.message });
   }
 };
 
+// const vnp_TmnCode = process.env.VNP_TMNCODE;
+// const vnp_HashSecret = process.env.VNP_HASHSECRET;
+// const vnp_Url = process.env.VNP_URL;
+// const vnp_ReturnUrl = process.env.VNP_RETURNURL;
+// const vnp_IpnUrl = process.env.VNP_IPNURL;
 
-const vnp_TmnCode = process.env.VNP_TMNCODE;
-const vnp_HashSecret = process.env.VNP_HASHSECRET;
-const vnp_Url = process.env.VNP_URL;
-const vnp_ReturnUrl = process.env.VNP_RETURNURL;
-const vnp_IpnUrl = process.env.VNP_IPNURL;
+const createOrder = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { address, orderItems, paymentMethod, totalAmount } = req.body;
 
-function sortObject(obj) {
-  const sorted = {};
-  const keys = Object.keys(obj).sort();
-  for (let key of keys) {
-    sorted[key] = obj[key];
-  }
-  return sorted;
-}
+    if (!orderItems || orderItems.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Không có sản phẩm trong đơn hàng" });
+    }
 
-const createPaymentUrl = async (req, res) => {
-  const { totalAmount, orderId, orderDesc } = req.body;
-
-  const createDate = new Date()
-    .toISOString()
-    .replace(/[-T:Z.]/g, "")
-    .slice(0, 14);
-  const ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress || "127.0.0.1";
-
-
-  const vnp_Params = {
-    vnp_Version: "2.1.0",
-    vnp_Command: "pay",
-    vnp_TmnCode,
-    vnp_Locale: "vn",
-    vnp_CurrCode: "VND",
-    vnp_TxnRef: orderId,
-    vnp_OrderInfo: orderDesc,
-    vnp_OrderType: "billpayment",
-    vnp_Amount: Math.round(Number(totalAmount) * 100),
-    vnp_ReturnUrl,
-    vnp_IpAddr: ipAddr,
-    vnp_CreateDate: createDate,
-    vnp_IpnUrl,
-  };
-
-  const sortedParams = sortObject(vnp_Params);
-  const signData = qs.stringify(sortedParams, { encode: false });
-  const hmac = crypto.createHmac("sha512", vnp_HashSecret);
-  const secureHash = hmac.update(signData).digest("hex");
-  sortedParams.vnp_SecureHash = secureHash;
-
-  const paymentUrl = `${vnp_Url}?${qs.stringify(sortedParams, {
-    encode: false,
-  })}`;
-  console.log(paymentUrl);
-  res.json({ url: paymentUrl });
-};
-
-
-const vnpayIpn = async (req, res) => {
-  let vnp_Params = req.query;
-  const secureHash = vnp_Params.vnp_SecureHash;
-  delete vnp_Params.vnp_SecureHash;
-  delete vnp_Params.vnp_SecureHashType;
-
-  console.log(' IPN Params:', vnp_Params);
-  console.log(' SecureHash (received):', secureHash);
-
-  vnp_Params = sortObject(vnp_Params);
-  const signData = qs.stringify(vnp_Params, { encode: false });
-  const hmac = crypto.createHmac("sha512", vnp_HashSecret);
-  const checkSum = hmac.update(signData).digest("hex");
-
-  console.log(' IPN signData:', signData);
-  console.log(' IPN Calculated Checksum:', checkSum);
-
-  if (secureHash === checkSum) {
-    const orderId = vnp_Params.vnp_TxnRef;
-    console.log(" vnp_TxnRef :", vnp_Params.vnp_TxnRef);
-    console.log("res.orderId : "+res.orderId);
-    await Order.findByIdAndUpdate(orderId, {
-      isPaid: true,
-      paymentMethod: "vnpay",
+    const newOrder = await Order.create({
+      user: userId,
+      address,
+      orderItems,
+      paymentMethod,
+      totalAmount,
     });
-    res.status(200).json({ RspCode: "00", Message: "Success" });
-  } else {
-    res.status(200).json({ RspCode: "97", Message: "Checksum failed" });
+
+    // Populate sau khi tạo
+    const populatedOrder = await Order.findById(newOrder._id)
+      .populate("orderItems.product")
+      .populate("orderItems.variant")
+      .populate("address")
+      .populate("user", "name email");
+    //  clear cart after order
+    await Cart.findOneAndUpdate({ user: userId }, { items: [] });
+
+    //? Gửi email xác nhận đơn hàng
+    if (populatedOrder.user?.email) {
+      const transporter = nodemailer.createTransport({
+        service: "Gmail", // hoặc dùng SMTP của bên khác như Mailtrap, SendGrid...
+        auth: {
+          user: process.env.EMAIL_USER, // ví dụ: your-email@gmail.com
+          pass: process.env.EMAIL_PASS, // mật khẩu ứng dụng
+        },
+      });
+      const emailHTML = buildOrderEmailHTML(populatedOrder);
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: populatedOrder.user.email,
+        subject: "Xác nhận đơn đặt hàng - VSport",
+        html: emailHTML,
+      };
+
+      await transporter.sendMail(mailOptions);
+    }
+
+    res.status(201).json(populatedOrder);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Tạo đơn hàng thất bại" });
   }
 };
+const createPaymentUrl = async (req, res) => {
+  const { totalAmount, orderId, retry } = req.body;
+  const order = await Order.findById(orderId);
+  if (!order)
+    return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+
+  if (order.isPaid)
+    return res.status(400).json({ message: "Đơn hàng đã thanh toán" });
+
+  // Nếu retry thì tăng số lần và sinh TxnRef mới
+  if (retry) {
+    order.retryCount = (order.retryCount || 0) + 1;
+    await order.save();
+  }
+
+  const txnRef = retry ? `${order._id}_${order.retryCount}` : `${order._id}`;
+  const expire = new Date();
+  expire.setMinutes(expire.getMinutes() + 30);
+
+  const vnpayResponse = await vnpay.buildPaymentUrl({
+    vnp_Amount: totalAmount,
+    vnp_IpAddr: "127.0.0.1",
+    vnp_TxnRef: txnRef,
+    vnp_OrderInfo: "Thanh toan don hang " + orderId,
+    vnp_OrderType: ProductCode.Other,
+    vnp_ReturnUrl: process.env.VNP_RETURNURL,
+    vnp_Locale: VnpLocale.VN,
+    vnp_CreateDate: dateFormat(new Date()),
+    vnp_ExpireDate: dateFormat(expire),
+  });
+  // console.log(vnpayResponse);
+  return res.status(201).json({ url: vnpayResponse });
+};
+const vnpayIpn = async (req, res) => {
+  try {
+    const ipnData = req.query; // 🔁 VNPAY gửi IPN qua query string
+
+    let verification = vnpay.verifyIpnCall(ipnData);
+    if (!verification.isSuccess) {
+      return res.status(200).json({ RspCode: "97", Message: "Invalid hash" });
+    }
+
+    const { vnp_TxnRef, vnp_Amount } = ipnData;
+    let orderId;
+
+    if (vnp_TxnRef.includes('_')) {
+      console.log("vnp_TxnRef:"+vnp_TxnRef)
+      orderId = vnp_TxnRef.split('_')[0]; // Nếu có dấu "_" => là retry
+      console.log("orderId1:"+orderId)
+    } else {
+      orderId = vnp_TxnRef; // Nếu không => là lần thanh toán đầu tiên
+    }
+      console.log("orderId2:"+orderId)
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res
+        .status(200)
+        .json({ RspCode: "01", Message: "Order not found" });
+    }
+
+    const amount = parseInt(vnp_Amount || 0) / 100;
+
+    if (order.totalAmount !== amount) {
+      console.log(
+        "Order Totalamount : " + order.totalAmount + ", amount :" + amount
+      );
+      return res.status(200).json({ RspCode: "04", Message: "Invalid amount" });
+    }
+
+    if (order.isPaid) {
+      return res.status(200).json({ RspCode: "02", Message: "Already paid" });
+    }
+
+    order.isPaid = true;
+    await order.save();
+
+    return res.status(200).json({ RspCode: "00", Message: "Confirm Success" });
+  } catch (err) {
+    console.error("Manual IPN error:", err);
+    return res.status(500).json({ RspCode: "99", Message: "Server error" });
+  }
+};
+
 module.exports = {
   createOrder,
   updateOrderStatus,

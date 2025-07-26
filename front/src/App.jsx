@@ -26,7 +26,6 @@ import ProfilePage from './pages/user/ProfilePage';
 import ChangePasswordPage  from './pages/user/ChangePasswordPage';
 import OrderPage from './pages/user/OrderPage';
 import OrderDetailPage from './pages/user/OrderDetailPage';
-import PaymentPage from './pages/user/PaymentPage';
 import PaymentResult from './pages/user/PaymentResult';
 import ContactPage from './pages/user/ContactPage';
 //? STAFF
@@ -106,8 +105,7 @@ function App() {
                             <Route path="checkout" element={<CheckoutPage />} />
                             <Route path="order" element={<OrderPage />} />
                             <Route path="order/:id" element={<OrderDetailPage />} />
-                            <Route path="payment" element={<PaymentPage />} />
-                            <Route path="payment-result/:orderId" element={<PaymentResult />} />
+                            <Route path="payment-result" element={<PaymentResult />} />
                             <Route path="profile" element={<ProfilePage />} />
                             <Route path="profile/address" element={<AddressPage />} />
                             <Route path="change-password" element={<ChangePasswordPage/>} />

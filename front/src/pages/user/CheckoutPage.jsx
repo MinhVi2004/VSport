@@ -157,15 +157,14 @@ const CheckoutPage = () => {
                     '/api/order/create-vnpay',
                     {
                         orderId,
-                        totalAmount: totalPrice,
-                        orderDesc: 'Thanh toán đơn hàng bằng VNPay',
+                        totalAmount: totalPrice
                     }
                 );
                 // const updateStatus = await axiosInstance.put(`/api/order/pay/${orderId}`);
 
                 // toast.success('Đặt hàng thành công với phương thức VNPay!');
                 // navigate(`/payment-result/${orderId}`); // hoặc chuyển sang trang lịch sử đơn hàng
-                navigate('/payment', { state: { qrUrl: res.data.url } });
+                window.location.href=res.data.url
             }
         } catch (err) {
             console.error(err);

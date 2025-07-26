@@ -141,11 +141,11 @@ const OrderPage = () => {
                                         </td>
                                         <td className="px-4 py-3">
                                             {order.isPaid ? (
-                                                <span className="text-green-600 font-medium">
+                                                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
                                                     Đã thanh toán
                                                 </span>
                                             ) : (
-                                                <span className="text-red-500 font-medium">
+                                                <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
                                                     Chưa thanh toán
                                                 </span>
                                             )}
