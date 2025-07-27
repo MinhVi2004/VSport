@@ -9,11 +9,7 @@ const AdminLayout = () => {
   const [avatar, setAvatar] = useState(null);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   useEffect(() => { 
-    if (user?.gender === 'Nam') {
       setAvatar('/website/male_avatar.png');
-    } else {
-      setAvatar('/website/female_avatar.png');
-    }
   }, [user]);
 
   return (
