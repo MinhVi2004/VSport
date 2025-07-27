@@ -6,7 +6,7 @@ require("dotenv").config();
 // POST thêm người dùng mới
 exports.signupUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, redirect } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const existingUser = await User.findOne({ email });
 
@@ -26,7 +26,7 @@ exports.signupUser = async (req, res) => {
     await newUser.save();
 
     // Gửi email xác minh
-    const verifyUrl = `${process.env.FRONT_END}/verify-email?token=${verifyToken}`;
+    const verifyUrl = `${process.env.FRONT_END}/verify-email?token=${verifyToken}&redirected=${encodeURIComponent(redirect)}`;
 
     const transporter = nodemailer.createTransport({
       service: "gmail", // có thể đổi sang khác nếu dùng SMTP khác

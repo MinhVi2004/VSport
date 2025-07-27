@@ -11,7 +11,7 @@ const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token");
-
+  const redirected = searchParams.get("redirected");
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("loading"); // loading | success | error
   const hasVerified = useRef(false);
@@ -34,7 +34,7 @@ const VerifyEmail = () => {
         setStatus("success");
 
         setTimeout(() => {
-          navigate("/signin");
+          navigate(`/signin${redirected ? `?redirect=${redirected}` : ''}`);
         }, 3000);
       } catch (err) {
         toast.error(err.response?.data?.message || "Token không hợp lệ hoặc đã hết hạn.");

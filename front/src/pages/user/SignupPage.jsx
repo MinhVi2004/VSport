@@ -7,8 +7,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const SignupPage = () => {
     const location = useLocation();
-    const redirect =
-        new URLSearchParams(location.search).get('redirect') || '/';
+    const redirect = new URLSearchParams(location.search).get('redirect') || '/';
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
@@ -76,6 +75,7 @@ const SignupPage = () => {
                 // gender,
                 email,
                 password,
+                redirect
             });
 
             toast.success(
@@ -88,6 +88,7 @@ const SignupPage = () => {
                 email: '',
                 password: '',
                 confirmPassword: '',
+                
             });
             // Chờ 1.5 giây rồi mới chuyển hướng
             setTimeout(() => {
