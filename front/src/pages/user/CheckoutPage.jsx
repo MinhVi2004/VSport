@@ -17,6 +17,9 @@ const CheckoutPage = () => {
         detail: '',
         isDefault: false,
     });
+    const [provinces, setProvinces] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(null);
 
@@ -51,7 +54,6 @@ const CheckoutPage = () => {
             toast.error('Không thể tải giỏ hàng');
         }
     };
-
     useEffect(() => {
         if (!user) {
             toast.info('Vui lòng đăng nhập');
@@ -62,38 +64,158 @@ const CheckoutPage = () => {
         const init = async () => {
             await fetchAddresses();
             await fetchCart();
+            await fetchProvinces();
         };
 
         init();
     }, []);
+    const fetchProvinces = async () => {
+        const res = await fetch('https://provinces.open-api.vn/api/?depth=1');
+        const data = await res.json();
+        setProvinces(data);
+    };
+    useEffect(() => {
+        if (form.province) {
+            const selected = provinces.find(p => p.name === form.province);
+            if (selected) {
+                fetch(
+                    `https://provinces.open-api.vn/api/p/${selected.code}?depth=2`
+                )
+                    .then(res => res.json())
+                    .then(data => setDistricts(data.districts));
+            }
+        } else {
+            setDistricts([]);
+            setWards([]);
+        }
+        setForm(prev => ({ ...prev, district: '', ward: '' }));
+    }, [form.province]);
+
+    useEffect(() => {
+        if (form.district) {
+            const selected = districts.find(d => d.name === form.district);
+            if (selected) {
+                fetch(
+                    `https://provinces.open-api.vn/api/d/${selected.code}?depth=2`
+                )
+                    .then(res => res.json())
+                    .then(data => setWards(data.wards));
+            }
+        } else {
+            setWards([]);
+        }
+        setForm(prev => ({ ...prev, ward: '' }));
+    }, [form.district]);
+
     const handleAddressSelect = address => {
         setSelectedAddress(address);
     };
 
     const handleSubmit = async e => {
         e.preventDefault();
+
+        const nameRegex = /^[^\d]{6,}$/; // fullName: ít nhất 6 ký tự, không chứa số
+        const phoneRegex = /^(0|\+84)(\d{9})$/; // phone: bắt đầu bằng 0 hoặc +84, có 10 số
+
+        if (!form.fullName.trim()) {
+            toast.warning('Họ tên không được để trống.');
+            return;
+        }
+
+        if (!nameRegex.test(form.fullName.trim())) {
+            toast.warning('Họ tên phải ít nhất 6 ký tự và không chứa số.');
+            return;
+        }
+
+        if (!form.phoneNumber.trim()) {
+            toast.warning('Số điện thoại không được để trống.');
+            return;
+        }
+
+        if (!phoneRegex.test(form.phoneNumber.trim())) {
+            toast.warning('Số điện thoại không đúng định dạng.');
+            return;
+        }
+
+        if (!form.province || !form.district || !form.ward) {
+            toast.warning(
+                'Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.'
+            );
+            return;
+        }
+
+        if (!form.detail.trim() || form.detail.trim().length < 6) {
+            toast.warning('Địa chỉ chi tiết phải có ít nhất 6 ký tự.');
+            return;
+        }
+
         try {
             if (isEdit) {
                 await axiosInstance.put(`/api/address/${editId}`, form);
-                toast.success('Cập nhật địa chỉ thành công');
+                toast.success('Cập nhật địa chỉ thành công.');
             } else {
                 await axiosInstance.post('/api/address', form);
-                toast.success('Thêm địa chỉ thành công');
+                toast.success('Thêm địa chỉ thành công.');
             }
+
             setFormVisible(false);
             resetForm();
             fetchAddresses();
-        } catch {
-            toast.error('Có lỗi xảy ra');
+        } catch (error) {
+            toast.error('Đã xảy ra lỗi khi gửi dữ liệu.');
         }
     };
 
-    const handleEdit = address => {
-        setForm(address);
-        setEditId(address._id);
-        setIsEdit(true);
-        setFormVisible(true);
-    };
+    const handleEdit = async (address) => {
+  setFormVisible(true);
+  setIsEdit(true);
+  setEditId(address._id);
+  setForm(address); // Gán trước để hiển thị dữ liệu sẵn
+
+  // Đảm bảo provinces đã có
+  if (provinces.length === 0) {
+    await fetchProvinces();
+  }
+
+  // Tìm province đang chọn
+  const selectedProvince = provinces.find(
+    (p) => p.name === address.province
+  );
+
+  if (selectedProvince) {
+    // Fetch danh sách quận/huyện theo tỉnh
+    const res = await fetch(
+      `https://provinces.open-api.vn/api/p/${selectedProvince.code}?depth=2`
+    );
+    const data = await res.json();
+    const fetchedDistricts = data.districts;
+    setDistricts(fetchedDistricts);
+
+    // Tìm district đang chọn
+    const selectedDistrict = fetchedDistricts.find(
+      (d) => d.name === address.district
+    );
+
+    if (selectedDistrict) {
+      // Gán lại để đảm bảo cập nhật (cần thiết trong một số trường hợp)
+      setForm((prev) => ({ ...prev, district: selectedDistrict.name }));
+
+      // Fetch danh sách phường/xã theo quận/huyện
+      const res2 = await fetch(
+        `https://provinces.open-api.vn/api/d/${selectedDistrict.code}?depth=2`
+      );
+      const data2 = await res2.json();
+      setWards(data2.wards);
+
+      // Đảm bảo form.ward cũng được cập nhật đúng
+      setForm((prev) => ({
+        ...prev,
+        ward: address.ward, // Đảm bảo chọn lại đúng phường
+      }));
+    }
+  }
+};
+
 
     const handleDelete = async id => {
         if (confirm('Xác nhận xóa địa chỉ này?')) {
@@ -137,15 +259,12 @@ const CheckoutPage = () => {
             }));
 
             // Tạo đơn hàng trước
-            const createOrderRes = await axiosInstance.post(
-                '/api/order',
-                {
-                    orderItems,
-                    address: selectedAddress._id,
-                    paymentMethod: paymentMethod,
-                    totalAmount: totalPrice,
-                }
-            );
+            const createOrderRes = await axiosInstance.post('/api/order', {
+                orderItems,
+                address: selectedAddress._id,
+                paymentMethod: paymentMethod,
+                totalAmount: totalPrice,
+            });
             // console.log('createOrderRes', createOrderRes);
             const orderId = createOrderRes.data._id;
 
@@ -157,14 +276,14 @@ const CheckoutPage = () => {
                     '/api/order/create-vnpay',
                     {
                         orderId,
-                        totalAmount: totalPrice
+                        totalAmount: totalPrice,
                     }
                 );
                 // const updateStatus = await axiosInstance.put(`/api/order/pay/${orderId}`);
 
                 // toast.success('Đặt hàng thành công với phương thức VNPay!');
                 // navigate(`/payment-result/${orderId}`); // hoặc chuyển sang trang lịch sử đơn hàng
-                window.location.href=res.data.url
+                window.location.href = res.data.url;
             }
         } catch (err) {
             console.error(err);
@@ -290,32 +409,57 @@ const CheckoutPage = () => {
                                 />
 
                                 <div className="grid grid-cols-2 gap-2">
-                                    <input
-                                        placeholder="Tỉnh / TP"
+                                    <select
                                         className="border p-2 rounded"
                                         value={form.province}
                                         onChange={e =>
                                             setForm({
                                                 ...form,
                                                 province: e.target.value,
+                                                district: '',
+                                                ward: '',
                                             })
                                         }
                                         required
-                                    />
-                                    <input
-                                        placeholder="Quận / Huyện"
+                                    >
+                                        <option value="">Chọn Tỉnh / TP</option>
+                                        {provinces.map(province => (
+                                            <option
+                                                key={province.code}
+                                                value={province.name}
+                                            >
+                                                {province.name}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    <select
                                         className="border p-2 rounded"
                                         value={form.district}
                                         onChange={e =>
                                             setForm({
                                                 ...form,
                                                 district: e.target.value,
+                                                ward: '',
                                             })
                                         }
                                         required
-                                    />
-                                    <input
-                                        placeholder="Phường / Xã"
+                                        disabled={!form.province}
+                                    >
+                                        <option value="">
+                                            Chọn Quận / Huyện
+                                        </option>
+                                        {districts.map(district => (
+                                            <option
+                                                key={district.code}
+                                                value={district.name}
+                                            >
+                                                {district.name}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    <select
                                         className="border p-2 rounded col-span-2"
                                         value={form.ward}
                                         onChange={e =>
@@ -325,7 +469,21 @@ const CheckoutPage = () => {
                                             })
                                         }
                                         required
-                                    />
+                                        disabled={!form.district}
+                                    >
+                                        <option value="">
+                                            Chọn Phường / Xã
+                                        </option>
+                                        {wards.map(ward => (
+                                            <option
+                                                key={ward.code}
+                                                value={ward.name}
+                                            >
+                                                {ward.name}
+                                            </option>
+                                        ))}
+                                    </select>
+
                                     <input
                                         placeholder="Số nhà, đường"
                                         className="border p-2 rounded col-span-2"
@@ -460,20 +618,20 @@ const CheckoutPage = () => {
                         </div>
 
                         {paymentMethod === 'COD' ? (
-    <button
-        className="w-full mt-6 bg-blue-600 text-white py-2 rounded-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
-        onClick={handleConfirm}
-    >
-        <CheckCircle size={20} /> Đặt hàng
-    </button>
-) : (
-    <button
-        className="w-full mt-6 bg-green-500 text-white py-2 rounded-sm hover:bg-green-600 transition-all flex items-center justify-center gap-2"
-        onClick={handleConfirm}
-    >
-        <CheckCircle size={20} /> Thanh toán
-    </button>
-)}
+                            <button
+                                className="w-full mt-6 bg-blue-600 text-white py-2 rounded-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                                onClick={handleConfirm}
+                            >
+                                <CheckCircle size={20} /> Đặt hàng
+                            </button>
+                        ) : (
+                            <button
+                                className="w-full mt-6 bg-green-500 text-white py-2 rounded-sm hover:bg-green-600 transition-all flex items-center justify-center gap-2"
+                                onClick={handleConfirm}
+                            >
+                                <CheckCircle size={20} /> Thanh toán
+                            </button>
+                        )}
                     </>
                 )}
             </div>
