@@ -38,10 +38,6 @@ exports.createProduct = async (req, res) => {
     const qrCodeUrl = await generateQRCodeAndUpload(newProduct._id);
     if (qrCodeUrl) {
       newProduct.qrCodeUrl = qrCodeUrl;
-      newProduct.images.push({
-        url: qrCodeUrl,
-        public_id: `QR_${newProduct._id}`,
-      });
       await newProduct.save(); // update with qr
     }
 
