@@ -5,7 +5,7 @@ const cloudinary = require("../utils/cloudinary");
 exports.getAllCategories = async (req, res) => {
       try {
             const categories = await Category.find();
-            console.log("Full category: " + categories)
+            // console.log("Full category: " + categories)
             res.json(categories);
       } catch (error) {
             res.status(500).json({ message: "Error fetching categories", error });

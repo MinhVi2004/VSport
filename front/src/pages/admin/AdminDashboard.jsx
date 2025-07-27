@@ -20,6 +20,26 @@ const AdminDashboard = () => {
         revenue: 0,
     });
     const [monthlyRevenue, setMonthlyRevenue] = useState([]);
+    const getStatusBadge = status => {
+    const base =
+        'text-xs font-medium px-2 py-1 rounded-full inline-block';
+    switch (status) {
+        case 'Đang xác nhận':
+            return `${base} bg-yellow-100 text-yellow-700`;
+        case 'Đang xử lý':
+            return `${base} bg-purple-100 text-purple-700`;
+        case 'Đang vận chuyển':
+            return `${base} bg-blue-100 text-blue-700`;
+        case 'Đã vận chuyển':
+            return `${base} bg-indigo-100 text-indigo-700`;
+        case 'Hoàn thành':
+            return `${base} bg-green-100 text-green-700`;
+        case 'Đã hủy':
+            return `${base} bg-red-100 text-red-600`;
+        default:
+            return `${base} bg-gray-100 text-gray-700`;
+    }
+};
 
     useEffect(() => {
         fetchData();
@@ -28,13 +48,16 @@ const AdminDashboard = () => {
         const now = new Date();
         const inputDate = new Date(date);
 
+        const dayOfWeek = now.getDay(); // 0 (CN) → 6 (T7)
+
         const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - now.getDay()); // Chủ nhật
+        startOfWeek.setDate(now.getDate() - dayOfWeek);
+        startOfWeek.setHours(0, 0, 0, 0); // reset to 00:00:00
 
         const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6); // Thứ Bảy
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999); // end of day
 
-        // So sánh chỉ ngày, bỏ qua giờ
         return inputDate >= startOfWeek && inputDate <= endOfWeek;
     };
 
@@ -130,14 +153,16 @@ const AdminDashboard = () => {
                 <div className="overflow-auto">
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="border-b bg-gray-50 text-left">
-                                <th className="p-2">Mã đơn</th>
-                                <th className="p-2">Phương thức</th>
-                                <th className="p-2">Ngày đặt</th>
-                                <th className="p-2">Tổng tiền</th>
-                                <th className="p-2">Thanh toán</th>
-                            </tr>
-                        </thead>
+    <tr className="border-b bg-gray-50 text-left">
+        <th className="p-2 text-left">Mã đơn</th>
+        <th className="p-2 text-center">Phương thức</th>
+        <th className="p-2 text-center">Ngày đặt</th>
+        <th className="p-2 text-center">Tổng tiền</th>
+        <th className="p-2 text-center">Thanh toán</th>
+        <th className="p-2 text-center">Trạng thái</th>
+    </tr>
+</thead>
+
                         <tbody>
                             {orders.map(order => (
                                 <tr
@@ -147,30 +172,37 @@ const AdminDashboard = () => {
                                     <td className="p-2">
                                         {order._id.toUpperCase()}
                                     </td>
-                                    <td className="p-2">
+                                    <td className="p-2 text-center">
                                         {order.paymentMethod}
                                     </td>
-                                    <td className="p-2">
+                                    <td className="p-2 text-center">
                                         {new Date(
                                             order.createdAt
                                         ).toLocaleString()}
                                     </td>
-                                    <td className="p-2 text-blue-600 font-semibold">
+                                    <td className="p-2 text-center text-blue-600 font-semibold">
                                         {order.totalAmount.toLocaleString()}₫
                                     </td>
-                                    <td className="p-2">
-                                        {order.isPaid ? (
-                                            <span className="flex items-center text-green-600 font-medium">
-                                                <CheckCircle className="w-4 h-4 mr-1" />{' '}
-                                                Đã thanh toán
-                                            </span>
-                                        ) : (
-                                            <span className="flex items-center text-red-500 font-medium">
-                                                <XCircle className="w-4 h-4 mr-1" />{' '}
-                                                Chưa thanh toán
-                                            </span>
-                                        )}
-                                    </td>
+                                    <td className="p-2 text-center align-middle">
+    {order.isPaid ? (
+        <span className="inline-flex items-center justify-center text-green-600 font-medium">
+            <CheckCircle className="w-4 h-4 mr-1" />
+            Đã thanh toán
+        </span>
+    ) : (
+        <span className="inline-flex items-center justify-center text-red-500 font-medium">
+            <XCircle className="w-4 h-4 mr-1" />
+            Chưa thanh toán
+        </span>
+    )}
+</td>
+
+                                    <td className="p-2 text-center">
+    <span className={getStatusBadge(order.status)}>
+        {order.status}
+    </span>
+</td>
+
                                 </tr>
                             ))}
                             {orders.length === 0 && (
