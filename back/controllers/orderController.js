@@ -324,8 +324,8 @@ const createPaymentUrl = async (req, res) => {
   }
 
   const txnRef = retry ? `${order._id}_${order.retryCount}` : `${order._id}`;
-  const expire = new Date();
-  expire.setMinutes(expire.getMinutes() + 30);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
   const vnpayResponse = await vnpay.buildPaymentUrl({
     vnp_Amount: totalAmount,
@@ -336,7 +336,7 @@ const createPaymentUrl = async (req, res) => {
     vnp_ReturnUrl: process.env.VNP_RETURNURL,
     vnp_Locale: VnpLocale.VN,
     vnp_CreateDate: dateFormat(new Date()),
-    vnp_ExpireDate: dateFormat(expire),
+    vnp_ExpireDate: dateFormat(tomorrow),
   });
   // console.log(vnpayResponse);
   return res.status(201).json({ url: vnpayResponse });
