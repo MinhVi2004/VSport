@@ -48,7 +48,7 @@ const UpdateCategory = () => {
       });
 
       toast.success("Cập nhật danh mục thành công");
-      navigate("admin/category")
+      window.location.reload();
     } catch (err) {
       console.error(err);
       toast.error("Có lỗi xảy ra khi cập nhật danh mục");
