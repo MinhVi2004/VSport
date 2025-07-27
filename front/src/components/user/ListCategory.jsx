@@ -5,7 +5,6 @@ import axiosInstance from "../../utils/axios";
 
 const ListCategory = () => {
   const containerRef = useRef(null);
-  const contentRef = useRef(null);
   const [showButtons, setShowButtons] = useState(false);
   const [trendingItems, setTrendingItems] = useState([]);
   const navigate = useNavigate();
@@ -32,18 +31,31 @@ const ListCategory = () => {
     fetchCategory();
   }, []);
 
+  // Kiểm tra khi resize
   useEffect(() => {
     const checkOverflow = () => {
-      if (!containerRef.current || !contentRef.current) return;
-      const containerWidth = containerRef.current.offsetWidth;
-      const contentWidth = contentRef.current.scrollWidth;
-      setShowButtons(contentWidth > containerWidth);
+      if (!containerRef.current) return;
+      const isOverflowing =
+        containerRef.current.scrollWidth > containerRef.current.clientWidth;
+      setShowButtons(isOverflowing);
     };
 
     checkOverflow();
     window.addEventListener("resize", checkOverflow);
     return () => window.removeEventListener("resize", checkOverflow);
   }, []);
+
+  // Kiểm tra lại sau khi dữ liệu danh mục thay đổi
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!containerRef.current) return;
+      const isOverflowing =
+        containerRef.current.scrollWidth > containerRef.current.clientWidth;
+      setShowButtons(isOverflowing);
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, [trendingItems]);
 
   const scroll = (direction) => {
     if (containerRef.current) {
@@ -71,12 +83,9 @@ const ListCategory = () => {
 
         <div
           ref={containerRef}
-          className="overflow-x-auto no-scrollbar px-10"
+          className="overflow-x-auto px-10 no-scrollbar scroll-smooth "
         >
-          <div
-            ref={contentRef}
-            className="flex gap-6 w-max transition-all"
-          >
+          <div className="flex gap-6 w-max transition-all">
             {/* Danh mục tất cả */}
             <div
               onClick={() => handleSelectCategory("")}
