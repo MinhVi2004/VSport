@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../middleWare/upload");
 const productController = require("../controllers/productController");
-
+const {authMiddleware, isAdmin} = require("../middleWare/auth")
 // Sản phẩm
-router.post("/", upload.array("images", 6), productController.createProduct);
-router.put("/:id", upload.array("images", 6), productController.updateProduct);
+router.post("/", authMiddleware, isAdmin, upload.array("images", 6), productController.createProduct);
+router.put("/:id", authMiddleware, isAdmin, upload.array("images", 6), productController.updateProduct);
 
 router.get("/", productController.getAllProducts);
 // Đặt cụ thể trước chung chung để tránh nhầm route
