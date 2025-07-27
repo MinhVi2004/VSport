@@ -16,8 +16,8 @@ router.get("/:id", productController.getProductById); // để cuối cùng
 router.delete("/:id", productController.deleteProduct);
 
 // Biến thể
-router.post("/variant/:id", upload.single("image"), productController.createVariant);
-router.put("/variant/:productId/:variantId", upload.single("image"), productController.updateVariant);
-router.delete("/variant/:id", productController.deleteVariant);
+router.post("/variant/:id", authMiddleware, isAdmin,upload.single("image"), productController.createVariant);
+router.put("/variant/:productId/:variantId", authMiddleware, isAdmin,upload.single("image"), productController.updateVariant);
+router.delete("/variant/:id", authMiddleware, isAdmin,productController.deleteVariant);
 
 module.exports = router;
