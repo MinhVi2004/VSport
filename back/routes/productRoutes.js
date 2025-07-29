@@ -4,13 +4,13 @@ const upload = require("../middleWare/upload");
 const productController = require("../controllers/productController");
 const {authMiddleware, isAdmin} = require("../middleWare/auth")
 // Sản phẩm
-router.post("/", authMiddleware, isAdmin, upload.array("images", 6), productController.createProduct);
-router.put("/:id", authMiddleware, isAdmin, upload.array("images", 6), productController.updateProduct);
+router.post("/", authMiddleware, isAdmin, upload.array("images",10), productController.createProduct);
+router.put("/:id", authMiddleware, isAdmin, upload.array("images", 10), productController.updateProduct);
 
 router.get("/", productController.getAllProducts);
 // Đặt cụ thể trước chung chung để tránh nhầm route
 router.get("/category/:id", productController.getAllProductByCategory);
-router.get("/detail/:id", productController.getProductDetailById);
+router.get("/cart/:id", productController.getProductCartById);
 router.get("/:id", productController.getProductById); // để cuối cùng
 
 router.delete("/:id", productController.deleteProduct);

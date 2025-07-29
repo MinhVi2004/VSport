@@ -136,13 +136,14 @@ exports.createVariant = async (req, res) => {
     if (!product)
       return res.status(404).json({ message: "Sản phẩm không tồn tại" });
 
+    product.hasVariant = true;
+    await product.save()
     const uploadResult = await cloudinary.uploader.upload(req.file.path, {
       folder: `VSport/Product/${productId}/variants`,
     });
 
     const parsedSizes = JSON.parse(sizes).map((sz, i) => ({
       ...sz,
-      sku: `VAR-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     }));
 
     const variant = new Variant({
@@ -177,7 +178,13 @@ exports.updateVariant = async (req, res) => {
   try {
     const { productId, variantId } = req.params;
     const { color, sizes } = req.body;
-
+    const product = await Product.findById(productId);
+    if (!product)
+      return res.status(404).json({ message: "Sản phẩm không tồn tại" });
+    if(!product.hasVariant) {
+      product.hasVariant = true;
+      await product.save()
+    }
     const variant = await Variant.findById(variantId);
     if (!variant || variant.product.toString() !== productId)
       return res.status(404).json({ message: "Biến thể không hợp lệ" });
@@ -185,8 +192,6 @@ exports.updateVariant = async (req, res) => {
     variant.color = color;
     variant.sizes = JSON.parse(sizes).map((sz) => ({
       ...sz,
-      sku:
-        sz.sku || `VAR-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     }));
     for (let i = 0; i < variant.sizes.length; i++) {
       const size = variant.sizes[i];
@@ -257,11 +262,11 @@ exports.getProductById = async (req, res) => {
       .json({ message: "Lỗi khi lấy sản phẩm", error: error.message });
   }
 };
-exports.getProductDetailById = async (req, res) => {
+exports.getProductCartById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
-      .populate("category", "name") // chỉ lấy trường name của category
-      .lean(); // chuyển về object thường để dễ thao tác sau
+  .select('_id name price images.url variants.color variants.image')
+  .lean();
 
     if (!product) {
       return res.status(404).json({ message: "Sản phẩm không tồn tại" });

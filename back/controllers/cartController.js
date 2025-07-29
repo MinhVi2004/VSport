@@ -15,7 +15,7 @@ exports.getCart = async (req, res) => {
       })
       .populate({
         path: "items.variant",
-        select: "color sizes"
+        select: "color sizes image"
       });
 
     res.json(cart || { user: userId, items: [] });

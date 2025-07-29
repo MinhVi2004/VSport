@@ -62,8 +62,8 @@ const UpdateProduct = () => {
     };
 
     const handleAddImage = e => {
-        if (previewImages.length >= 6) {
-            return toast.error('Chỉ tối đa 6 ảnh');
+        if (previewImages.length >= 10) {
+            return toast.error('Chỉ tối đa 10 ảnh');
         }
 
         const file = e.target.files[0];

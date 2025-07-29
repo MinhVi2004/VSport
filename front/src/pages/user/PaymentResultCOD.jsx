@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-    Link,
-    useNavigate
-} from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axiosInstance from './../../utils/axios';
 import {
     CheckCircle,
@@ -12,35 +9,24 @@ import {
     ArrowLeftToLine,
 } from 'lucide-react';
 
-const PaymentResult = () => {
+const PaymentResultCOD = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
     const [order, setOrder] = useState(null);
-    const params = new URLSearchParams(window.location.search);
-    const txnRef = params.get('vnp_TxnRef');
+
     useEffect(() => {
-    const fetchOrder = async () => {
-        try {
-            // Parse toàn bộ query string
-            const rawParams = new URLSearchParams(window.location.search);
-            const body = {};
-            for (const [key, value] of rawParams.entries()) {
-                body[key] = value;
+        const fetchOrder = async () => {
+            try {
+                const res = await axiosInstance.get(`/api/order/${id}`);
+                setOrder(res.data);
+            } catch (err) {
+                console.error('Lỗi lấy đơn hàng COD:', err);
+                // navigate('/');
             }
+        };
 
-            // Gọi IPN thủ công với đầy đủ dữ liệu như IPN thực
-            await axiosInstance.get('/api/order/vnpay_ipn', { params: body });
-
-            // Lấy chi tiết đơn hàng sau khi IPN xác nhận
-            const res = await axiosInstance.get(`/api/order/${body.vnp_TxnRef}`);
-            setOrder(res.data);
-        } catch (err) {
-            console.error('Lỗi xác nhận thanh toán:', err);
-            // navigate('/');
-        }
-    };
-
-    if (txnRef) fetchOrder();
-}, [txnRef]);
+        if (id) fetchOrder();
+    }, [id]);
 
     if (!order)
         return (
@@ -48,27 +34,6 @@ const PaymentResult = () => {
                 Đang tải đơn hàng...
             </div>
         );
-
-    if (!order.isPaid) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center text-center p-6">
-                <CheckCircle className="w-16 h-16 text-red-500 mb-3" />
-                <h2 className="text-2xl font-bold text-red-600">
-                    Thanh toán thất bại
-                </h2>
-                <p className="text-gray-600 mt-2">
-                    Đơn hàng chưa được thanh toán. Vui lòng thử lại hoặc liên hệ
-                    hỗ trợ.
-                </p>
-                <button
-                    onClick={() => navigate('/')}
-                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-                >
-                    Quay lại trang chủ
-                </button>
-            </div>
-        );
-    }
 
     return (
         <div className="max-w-6xl mx-auto p-4 md:p-6 relative bg-gray-50 min-h-screen">
@@ -114,40 +79,59 @@ const PaymentResult = () => {
                             Sản phẩm đã mua
                         </h2>
                         <div className="space-y-4">
-                            {order.orderItems.map((item, index) => (
-                                <div
-                                    key={index}
-                                    className="flex gap-4 border rounded-xl p-4 hover:shadow-sm transition"
-                                >
-                                    <Link to={`/product/${item.product?._id}`}>
-                                        <img
-                                            src={item.variant?item.variant.image:item.product?.images?.[0]?.url}
-                                            alt={item.product?.name}
-                                            className="w-16 h-16 object-cover rounded-lg"
-                                        />
-                                    </Link>
-                                    <div className="flex-1">
-                                        <Link
-                                            to={`/product/${item.product?._id}`}
-                                            className="font-semibold text-gray-800 hover:underline"
-                                        >
-                                            {item.product?.name}
+                            {order.orderItems.map((item, index) => {
+                                const product = item.product;
+                                const variant = item.variant;
+
+                                return (
+                                    <div
+                                        key={index}
+                                        className="flex gap-4 border rounded-xl p-4 hover:shadow-sm transition"
+                                    >
+                                        <Link to={`/product/${product?._id}`}>
+                                            <img
+                                                src={variant?variant.image:product?.images?.[0]?.url}
+                                                alt={product?.name}
+                                                className="w-16 h-16 object-cover rounded-lg"
+                                            />
                                         </Link>
-                                        {item.variant && (
-                                            <p className="text-sm text-gray-500">
-                                                Biến thể: {item.variant.color} -{' '}
-                                                {item.size}
+                                        <div className="flex-1">
+                                            <Link
+                                                to={`/product/${product?._id}`}
+                                                className="font-semibold text-gray-800 hover:underline"
+                                            >
+                                                {product?.name}
+                                            </Link>
+
+                                            {((variant?.color &&
+                                                variant.color !== 'default') ||
+                                                (item.size &&
+                                                    item.size !==
+                                                        'default')) && (
+                                                <p className="text-sm text-gray-500 mt-1">
+                                                    {variant?.color !==
+                                                        'default' &&
+                                                        `${variant.color}`}
+                                                    {variant?.color !==
+                                                        'default' &&
+                                                        item.size !==
+                                                            'default' &&
+                                                        ' - '}
+                                                    {item.size !== 'default' &&
+                                                        `${item.size}`}
+                                                </p>
+                                            )}
+
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                Số lượng: {item.quantity}
                                             </p>
-                                        )}
-                                        <p className="text-sm text-gray-600 mt-1">
-                                            Số lượng: {item.quantity}
-                                        </p>
+                                        </div>
+                                        <div className="text-right font-semibold text-gray-800">
+                                            {item.price.toLocaleString()}₫
+                                        </div>
                                     </div>
-                                    <div className="text-right font-semibold text-gray-800">
-                                        {item.price.toLocaleString()}₫
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -210,4 +194,4 @@ const PaymentResult = () => {
     );
 };
 
-export default PaymentResult;
+export default PaymentResultCOD;

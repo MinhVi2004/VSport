@@ -36,8 +36,8 @@ const AddProduct = () => {
         setForm(prev => ({ ...prev, [name]: value }));
     };
     const handleAddSingleImage = e => {
-        if (images.length >= 6) {
-            toast.error('Chỉ thêm tối đa 6 ảnh cho 1 sản phẩm.');
+        if (images.length >= 10) {
+            toast.error('Chỉ thêm tối đa 10 ảnh cho 1 sản phẩm.');
             return;
         }
         const file = e.target.files[0];

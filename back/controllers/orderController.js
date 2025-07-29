@@ -25,22 +25,24 @@ const buildOrderEmailHTML = (order) => {
     .map((item) => {
       const product = item.product || {};
       const variant = item.variant || {};
-      const imageUrl =
-        product?.images?.[0]?.url || "https://via.placeholder.com/80";
 
       return `
         <tr style="border-bottom:1px solid #eee;">
           <td style="padding:10px 0; display:flex; align-items:center;">
-            <img src="${imageUrl}" alt="${
-        product.name
-      }" style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:10px;" />
+          ${
+            variant
+              ? `<img src="${variant.image}" alt="${product.name}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:10px;" />`
+              : `<img src="${product.images[0].url}" alt="${product.name}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:10px;" />`
+          }
+            
             <div>
               <div style="font-weight:bold;">${product.name || "Sản phẩm"}</div>
               ${
-                item.variant
-                  ? `<div style="font-size:12px; color:#555;">Biến thể: ${variant.color} - ${variant.size}</div>`
+                variant
+                  ? `<div style="font-size:12px; color:#555;">${variant.color} - ${item.size}</div>`
                   : ""
               }
+
               <div style="font-size:12px; color:#333;">Số lượng: ${
                 item.quantity
               }</div>
@@ -186,8 +188,8 @@ const getMyOrdersById = async (req, res) => {
     const userId = req.user._id;
     let orderId = req.params.id;
 
-    if (orderId.includes('_')) {
-      orderId = orderId.split('_')[0]; // Nếu có dấu "_" => là retry
+    if (orderId.includes("_")) {
+      orderId = orderId.split("_")[0]; // Nếu có dấu "_" => là retry
     }
     const order = await Order.findOne({ _id: orderId, user: userId })
       .populate("orderItems.product")
@@ -353,14 +355,14 @@ const vnpayIpn = async (req, res) => {
     const { vnp_TxnRef, vnp_Amount } = ipnData;
     let orderId;
 
-    if (vnp_TxnRef.includes('_')) {
-      console.log("vnp_TxnRef:"+vnp_TxnRef)
-      orderId = vnp_TxnRef.split('_')[0]; // Nếu có dấu "_" => là retry
-      console.log("orderId1:"+orderId)
+    if (vnp_TxnRef.includes("_")) {
+      console.log("vnp_TxnRef:" + vnp_TxnRef);
+      orderId = vnp_TxnRef.split("_")[0]; // Nếu có dấu "_" => là retry
+      console.log("orderId1:" + orderId);
     } else {
       orderId = vnp_TxnRef; // Nếu không => là lần thanh toán đầu tiên
     }
-      console.log("orderId2:"+orderId)
+    console.log("orderId2:" + orderId);
     const order = await Order.findById(orderId);
     if (!order) {
       return res

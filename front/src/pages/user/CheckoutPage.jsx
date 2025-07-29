@@ -270,7 +270,7 @@ const CheckoutPage = () => {
 
             if (paymentMethod === 'COD') {
                 toast.success('Đặt hàng thành công với phương thức COD!');
-                navigate(`/payment-result/${orderId}`);
+                navigate(`/payment-result-cod/${orderId}`);
             } else if (paymentMethod === 'vnpay') {
                 const res = await axiosInstance.post(
                     '/api/order/create-vnpay',
@@ -556,7 +556,7 @@ const CheckoutPage = () => {
                                     className="flex items-center gap-4 border-b pb-4"
                                 >
                                     <img
-                                        src={item.product.images[0]?.url}
+                                        src={item.variant?item.variant.image:item.product.images[0]?.url}
                                         alt={item.product.name}
                                         className="w-20 h-20 object-cover rounded-md"
                                     />
@@ -565,12 +565,12 @@ const CheckoutPage = () => {
                                             {item.product.name}
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                            SL: {item.quantity}
+                                            Số lượng: {item.quantity}
                                         </p>
                                         {item.variant && (
                                             <p className="text-sm text-gray-500">
                                                 Biến thể: {item.variant.color} -{' '}
-                                                {item.variant.size}
+                                                {item.size}
                                             </p>
                                         )}
                                     </div>

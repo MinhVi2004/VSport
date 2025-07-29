@@ -27,6 +27,8 @@ import ChangePasswordPage  from './pages/user/ChangePasswordPage';
 import OrderPage from './pages/user/OrderPage';
 import OrderDetailPage from './pages/user/OrderDetailPage';
 import PaymentResult from './pages/user/PaymentResult';
+import PaymentResultCOD from './pages/user/PaymentResultCOD';
+
 import ContactPage from './pages/user/ContactPage';
 //? STAFF
 import POSMainPage from './pages/staff/POSMainPage';
@@ -106,6 +108,7 @@ function App() {
                             <Route path="order" element={<OrderPage />} />
                             <Route path="order/:id" element={<OrderDetailPage />} />
                             <Route path="payment-result" element={<PaymentResult />} />
+                            <Route path="payment-result-cod/:id" element={<PaymentResultCOD />} />
                             <Route path="profile" element={<ProfilePage />} />
                             <Route path="profile/address" element={<AddressPage />} />
                             <Route path="change-password" element={<ChangePasswordPage/>} />
