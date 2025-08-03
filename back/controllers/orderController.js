@@ -24,7 +24,7 @@ const buildOrderEmailHTML = (order) => {
   const productListHTML = order.orderItems
     .map((item) => {
       const product = item.product || {};
-      const variant = item.variant || {};
+      const variant = item.variant;
 
       return `
         <tr style="border-bottom:1px solid #eee;">
@@ -32,7 +32,7 @@ const buildOrderEmailHTML = (order) => {
           ${
             variant
               ? `<img src="${variant.image}" alt="${product.name}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:10px;" />`
-              : `<img src="${product.images[0].url}" alt="${product.name}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:10px;" />`
+              : `<img src="${product?.images[0]?.url}" alt="${product.name}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:10px;" />`
           }
             
             <div>

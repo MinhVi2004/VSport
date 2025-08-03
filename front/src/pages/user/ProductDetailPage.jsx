@@ -42,62 +42,61 @@ const ProductDetailPage = () => {
         : null;
 
     const handleAddToCart = async () => {
-    const user = JSON.parse(sessionStorage.getItem('user'));
+        const user = JSON.parse(sessionStorage.getItem('user'));
 
-    if (hasVariants && !selectedSize) {
-        return toast.error('Vui lòng chọn kích thước!');
-    }
+        if (hasVariants && !selectedSize) {
+            return toast.error('Vui lòng chọn kích thước!');
+        }
 
-    // Tạo object item theo đúng format trong MongoDB
-    const cartItem = {
-        product: {
-            _id: product._id,
-            name: product.name,
-            price: product.price,
-            images: product.images,
-        },
-        variant: hasVariants
-            ? {
-                  _id: selectedVariant._id,
-                  color: selectedVariant.color,
-                  image: selectedVariant.image,
-                  sizes: selectedVariant.sizes,
-              }
-            : null,
-        size: hasVariants ? selectedSize.size : 'default',
-        quantity,
-    };
+        const cartItem = {
+            product: {
+                _id: product._id,
+                name: product.name,
+                price: product.price,
+                images: product.images,
+            },
+            variant: hasVariants
+                ? {
+                    _id: selectedVariant._id,
+                    color: selectedVariant.color,
+                    image: selectedVariant.image,
+                    sizes: selectedVariant.sizes,
+                }
+                : null,
+            size: hasVariants ? selectedSize.size : 'default',
+            quantity,
+        };
 
-    try {
-        if (user && user._id) {
-            await axiosInstance.post('/api/cart', cartItem);
-            toast.success('Đã thêm vào giỏ hàng');
-        } else {
-            const localCart = JSON.parse(localStorage.getItem('cart')) || [];
+        try {
+            if (user && user._id) {
+                await axiosInstance.post('/api/cart', cartItem);
+                toast.success('Đã thêm vào giỏ hàng');
+            } else {
+                const localCart = JSON.parse(localStorage.getItem('cart')) || [];
 
-            const existingIndex = localCart.findIndex(
-                item =>
+                const existingIndex = localCart.findIndex(item =>
                     item.product._id === cartItem.product._id &&
                     item.size === cartItem.size &&
-                    (hasVariants
-                        ? item.variant?.color === cartItem.variant?.color
-                        : true)
-            );
+                    (cartItem.variant
+                        ? item.variant?._id === cartItem.variant._id
+                        : !item.variant)
+                );
 
-            if (existingIndex !== -1) {
-                localCart[existingIndex].quantity += cartItem.quantity;
-            } else {
-                localCart.push(cartItem);
+                if (existingIndex !== -1) {
+                    localCart[existingIndex].quantity += cartItem.quantity;
+                } else {
+                    localCart.push(cartItem);
+                }
+
+                localStorage.setItem('cart', JSON.stringify(localCart));
+                toast.success('Đã thêm vào giỏ hàng');
             }
-
-            localStorage.setItem('cart', JSON.stringify(localCart));
-            toast.success('Đã thêm vào giỏ hàng');
+        } catch (err) {
+            console.error('Lỗi thêm vào giỏ hàng:', err);
+            toast.error('Thêm vào giỏ hàng thất bại');
         }
-    } catch (err) {
-        console.error('Lỗi thêm vào giỏ hàng:', err);
-        toast.error('Thêm vào giỏ hàng thất bại');
-    }
-};
+    };
+
 
 
     return (
@@ -238,7 +237,7 @@ const ProductDetailPage = () => {
 
                     <button
                         onClick={handleAddToCart}
-                        className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 "
+                        className="mt-8 bg-blue-600 w-full hover:bg-blue-700 text-white px-6 py-2 "
                     >
                         Thêm vào giỏ hàng
                     </button>
