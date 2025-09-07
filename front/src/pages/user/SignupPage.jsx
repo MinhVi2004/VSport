@@ -58,9 +58,10 @@ const SignupPage = () => {
             return;
         }
 
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
+
         if (!passwordRegex.test(password)) {
-            toast.warning('Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số.');
+            toast.warning('Mật khẩu phải có ít nhất 6 ký tự, bao gồm ít nhất 1 chữ cái và 1 số.');
             return;
         }
 
