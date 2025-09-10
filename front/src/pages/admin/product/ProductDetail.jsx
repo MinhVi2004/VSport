@@ -11,7 +11,7 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axiosInstance.get(`api/product/detail/${id}`);
+        const res = await axiosInstance.get(`api/product/${id}`);
         setProduct(res.data);
       } catch (error) {
         toast.error('Không tìm thấy sản phẩm');
