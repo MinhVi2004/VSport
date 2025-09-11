@@ -10,6 +10,7 @@ import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const SigninPage = () => {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const redirect = new URLSearchParams(location.search).get('redirect') || '/';
@@ -132,6 +133,8 @@ const SigninPage = () => {
   };
 
   const handleSubmit = async e => {
+    
+    if (loading) return; 
     e.preventDefault();
     const { email, password } = formData;
 
@@ -152,6 +155,7 @@ const SigninPage = () => {
     }
 
     try {
+      setLoading(true);
       const res = await axios.post(`${BACKEND_URL}api/user/signin`, { email, password });
       const { user, token } = res.data;
 
@@ -164,6 +168,8 @@ const SigninPage = () => {
       handleRedirectAfterLogin(user, token);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Đăng nhập thất bại.');
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -207,8 +213,12 @@ const SigninPage = () => {
                 onChange={handleChange}
               />
             </div>
-            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4">
-              Đăng nhập
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full text-white font-semibold py-2 px-4 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+            >
+              {loading ? 'Đang xử lý...' : 'Đăng nhập'}
             </button>
             <div className="text-right mt-2">
               <button
