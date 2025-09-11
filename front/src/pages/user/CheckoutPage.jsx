@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const CheckoutPage = () => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('COD');
     const [addresses, setAddresses] = useState([]);
     const [formVisible, setFormVisible] = useState(false);
@@ -244,6 +245,8 @@ const CheckoutPage = () => {
     );
 
     const handleConfirm = async () => {
+        if (isSubmitting) return; 
+        setIsSubmitting(true);    
         if (!selectedAddress) {
             toast.warning('Vui lòng chọn địa chỉ giao hàng');
             return;
@@ -621,6 +624,7 @@ const CheckoutPage = () => {
                             <button
                                 className="w-full mt-6 bg-blue-600 text-white py-2 rounded-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                                 onClick={handleConfirm}
+                                disabled={isSubmitting}
                             >
                                 <CheckCircle size={20} /> Đặt hàng
                             </button>
@@ -628,6 +632,7 @@ const CheckoutPage = () => {
                             <button
                                 className="w-full mt-6 bg-green-500 text-white py-2 rounded-sm hover:bg-green-600 transition-all flex items-center justify-center gap-2"
                                 onClick={handleConfirm}
+                                disabled={isSubmitting}
                             >
                                 <CheckCircle size={20} /> Thanh toán
                             </button>
