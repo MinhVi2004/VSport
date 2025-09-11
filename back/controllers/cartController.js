@@ -79,11 +79,14 @@ exports.addToCart = async (req, res) => {
       // if (foundProduct.quantity < quantity)
       //   return res.status(400).json({ message: "Không đủ hàng" });
 
+      const productIdStr = productId?.toString();
+      const variantIdStr = variantId?.toString();
+
       const existingItem = cart.items.find(
         (item) =>
-          item.product.toString() === product &&
-          (!item.variant || item.variant === null) &&
-          item.size === "default"
+          item.product.toString() === productIdStr &&
+          (item.variant ? item.variant.toString() === variantIdStr : !variantIdStr) &&
+          item.size === size
       );
 
       if (existingItem) {
