@@ -6,8 +6,10 @@ import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const SignupPage = () => {
+    const [loading, setLoading] = useState(false);
     const location = useLocation();
-    const redirect = new URLSearchParams(location.search).get('redirect') || '/';
+    const redirect =
+        new URLSearchParams(location.search).get('redirect') || '/';
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
@@ -27,6 +29,7 @@ const SignupPage = () => {
 
     const handleSubmit = async e => {
         e.preventDefault();
+        if (loading) return; // nếu đang xử lý thì bỏ qua click tiếp theo
         const { name, email, password, confirmPassword } = formData;
 
         // Validation
@@ -58,10 +61,9 @@ const SignupPage = () => {
             return;
         }
 
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
-
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
         if (!passwordRegex.test(password)) {
-            toast.warning('Mật khẩu phải có ít nhất 6 ký tự, bao gồm ít nhất 1 chữ cái và 1 số.');
+            toast.warning('Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số.');
             return;
         }
 
@@ -71,12 +73,13 @@ const SignupPage = () => {
         }
 
         try {
+            setLoading(true); // bắt đầu disable nút
             const res = await axios.post(BACKEND_URL + 'api/user/signup', {
                 name,
                 // gender,
                 email,
                 password,
-                redirect
+                redirect,
             });
 
             toast.success(
@@ -89,7 +92,6 @@ const SignupPage = () => {
                 email: '',
                 password: '',
                 confirmPassword: '',
-                
             });
             // Chờ 1.5 giây rồi mới chuyển hướng
             setTimeout(() => {
@@ -101,6 +103,8 @@ const SignupPage = () => {
             toast.error(
                 error.response?.data?.message || 'Lỗi kết nối đến máy chủ.'
             );
+        } finally {
+            setLoading(false); // mở lại nút sau khi xong
         }
     };
 
@@ -225,9 +229,14 @@ const SignupPage = () => {
                         </div>
                         <button
                             type="submit"
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4  transition duration-200"
+                            disabled={loading}
+                            className={`w-full text-white font-semibold py-2 px-4 transition duration-200 ${
+                                loading
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-600 hover:bg-blue-700'
+                            }`}
                         >
-                            Đăng ký
+                            {loading ? 'Đang xử lý...' : 'Đăng ký'}
                         </button>
                     </form>
                     <p className="mt-4 text-center text-gray-600">
