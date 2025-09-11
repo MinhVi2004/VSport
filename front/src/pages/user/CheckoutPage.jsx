@@ -245,10 +245,12 @@ const CheckoutPage = () => {
     );
 
     const handleConfirm = async () => {
-        if (isSubmitting) return; 
-        setIsSubmitting(true);    
+        if (isSubmitting) return; // ⬅️ Nếu đang xử lý thì bỏ qua
+        setIsSubmitting(true);    // ⬅️ Khóa nút lại
+
         if (!selectedAddress) {
             toast.warning('Vui lòng chọn địa chỉ giao hàng');
+            setIsSubmitting(false);
             return;
         }
 
@@ -291,6 +293,8 @@ const CheckoutPage = () => {
         } catch (err) {
             console.error(err);
             toast.error('Đặt hàng thất bại!');
+        }finally {
+            setIsSubmitting(false); // ⬅️ Mở lại khi xong
         }
     };
     return (
@@ -621,22 +625,24 @@ const CheckoutPage = () => {
                         </div>
 
                         {paymentMethod === 'COD' ? (
-                            <button
-                                className="w-full mt-6 bg-blue-600 text-white py-2 rounded-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
-                                onClick={handleConfirm}
-                                disabled={isSubmitting}
-                            >
-                                <CheckCircle size={20} /> Đặt hàng
-                            </button>
-                        ) : (
-                            <button
-                                className="w-full mt-6 bg-green-500 text-white py-2 rounded-sm hover:bg-green-600 transition-all flex items-center justify-center gap-2"
-                                onClick={handleConfirm}
-                                disabled={isSubmitting}
-                            >
-                                <CheckCircle size={20} /> Thanh toán
-                            </button>
-                        )}
+                <button
+                    className={`w-full mt-6 bg-blue-600 text-white py-2 rounded-sm transition-all flex items-center justify-center gap-2 
+                        ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+                    onClick={handleConfirm}
+                    disabled={isSubmitting} // ⬅️ Disable khi đang xử lý
+                >
+                    <CheckCircle size={20} /> {isSubmitting ? 'Đang xử lý...' : 'Đặt hàng'}
+                </button>
+            ) : (
+                <button
+                    className={`w-full mt-6 bg-green-500 text-white py-2 rounded-sm transition-all flex items-center justify-center gap-2 
+                        ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'}`}
+                    onClick={handleConfirm}
+                    disabled={isSubmitting}
+                >
+                    <CheckCircle size={20} /> {isSubmitting ? 'Đang xử lý...' : 'Thanh toán'}
+                </button>
+            )}
                     </>
                 )}
             </div>
