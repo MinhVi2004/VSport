@@ -3,36 +3,27 @@ import React from 'react';
 // Giả sử bạn truyền cart JSON vào props
 const CartPage = ({ cart }) => {
 
-  // Lấy tên sản phẩm
+  const items = cart?.items || []; // nếu cart hoặc items undefined → dùng mảng rỗng
+
   const getProductName = item => item.product?.name || item.name || 'Unknown Product';
-
-  // Lấy ảnh sản phẩm
   const getProductImage = item => item.variant?.image || item.product?.images?.[0]?.url || '/images/default-product.png';
-
-  // Lấy giá sản phẩm
   const getProductPrice = item => {
     if (item.size && item.size.price) return item.size.price;
     if (item.product?.price) return item.product.price;
     if (item.price) return item.price;
     return 0;
   };
-
-  // Lấy màu và size
   const getProductColor = item => item.variant?.color || '';
   const getProductSize = item => typeof item.size === 'string' ? item.size : item.size?.size || '';
-
-  // Tính tổng tiền
-  const totalPrice = (cart.items || []).reduce((sum, item) => sum + getProductPrice(item) * item.quantity, 0);
-
-  // Lấy key cho React list
+  const totalPrice = items.reduce((sum, item) => sum + getProductPrice(item) * item.quantity, 0);
   const getItemKey = item => item.id || `${item.product?.id || 'null'}-${item.variant?.id || 'null'}-${item.size?.id || item.size || 'null'}`;
 
   return (
     <div className="cart-page">
       <h1 className="text-2xl font-bold mb-4">Giỏ hàng</h1>
       <div className="cart-items space-y-4">
-        {cart.items && cart.items.length > 0 ? (
-          cart.items.map(item => (
+        {items.length > 0 ? (
+          items.map(item => (
             <div key={getItemKey(item)} className="flex items-center gap-4 border p-4 rounded">
               <img 
                 src={getProductImage(item)} 
@@ -60,5 +51,6 @@ const CartPage = ({ cart }) => {
     </div>
   );
 };
+
 
 export default CartPage;
