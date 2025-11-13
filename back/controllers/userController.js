@@ -20,55 +20,58 @@ exports.signupUser = async (req, res) => {
     const payload = { name, email };
     const verifyToken = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "15m" });
 
-    // Tạo URL xác minh
-    const verifyUrl = `${process.env.FRONT_END}/verify-email?token=${verifyToken}&redirected=${encodeURIComponent(redirect)}`;
+    // // Tạo URL xác minh
+    // const verifyUrl = `${process.env.FRONT_END}/verify-email?token=${verifyToken}&redirected=${encodeURIComponent(redirect)}`;
 
-    // Cấu hình Nodemailer
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 20000, // 20s
-      greetingTimeout: 20000,
-      socketTimeout: 20000,
-    });
+    // // Cấu hình Nodemailer
+    // const transporter = nodemailer.createTransport({
+    //   host: "smtp.gmail.com",
+    //   port: 465,
+    //   secure: true,
+    //   auth: {
+    //     user: process.env.EMAIL_USER,
+    //     pass: process.env.EMAIL_PASS,
+    //   },
+    //   connectionTimeout: 20000, // 20s
+    //   greetingTimeout: 20000,
+    //   socketTimeout: 20000,
+    // });
 
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Xác minh tài khoản của bạn",
-      html: `<div style="font-family: Arial, sans-serif; color: #333; padding: 20px; max-width: 600px; margin: auto; background-color: #f9f9f9; border-radius: 10px;">
-        <h2 style="color: #2e7d32;">Xin chào <strong>${name}</strong>,</h2>
-        <p style="font-size: 16px;">
-          Cảm ơn bạn đã đăng ký tài khoản. Vui lòng bấm vào nút bên dưới để xác minh email và kích hoạt tài khoản:
-        </p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${verifyUrl}" 
-            style="display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 6px; font-size: 16px;">
-            Kích hoạt tài khoản
-          </a>
-        </div>
-        <p style="font-size: 14px; color: #777;">
-          Nếu bạn không yêu cầu đăng ký, vui lòng bỏ qua email này.
-        </p>
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-        <p style="font-size: 12px; color: #aaa; text-align: center;">
-          © 2025 V-Sport. Mọi quyền được bảo lưu.
-        </p>
-      </div>`,
-    };
+    // const mailOptions = {
+    //   from: process.env.EMAIL_USER,
+    //   to: email,
+    //   subject: "Xác minh tài khoản của bạn",
+    //   html: `<div style="font-family: Arial, sans-serif; color: #333; padding: 20px; max-width: 600px; margin: auto; background-color: #f9f9f9; border-radius: 10px;">
+    //     <h2 style="color: #2e7d32;">Xin chào <strong>${name}</strong>,</h2>
+    //     <p style="font-size: 16px;">
+    //       Cảm ơn bạn đã đăng ký tài khoản. Vui lòng bấm vào nút bên dưới để xác minh email và kích hoạt tài khoản:
+    //     </p>
+    //     <div style="text-align: center; margin: 30px 0;">
+    //       <a href="${verifyUrl}" 
+    //         style="display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 6px; font-size: 16px;">
+    //         Kích hoạt tài khoản
+    //       </a>
+    //     </div>
+    //     <p style="font-size: 14px; color: #777;">
+    //       Nếu bạn không yêu cầu đăng ký, vui lòng bỏ qua email này.
+    //     </p>
+    //     <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+    //     <p style="font-size: 12px; color: #aaa; text-align: center;">
+    //       © 2025 V-Sport. Mọi quyền được bảo lưu.
+    //     </p>
+    //   </div>`,
+    // };
 
-    // Gửi email trước
-    await transporter.sendMail(mailOptions);
+    // // Gửi email trước
+    // await transporter.sendMail(mailOptions);
 
     // Nếu gửi thành công thì mới tạo user
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ name, email, password: hashedPassword, isVerified: false, verifyToken });
+    // Cập nhật trạng thái xác minh
+    newUser.isVerified = true;
+    newUser.verifyToken = undefined; // Xoá token sau khi dùng
     await newUser.save();
 
     const userResponse = newUser.toObject();
