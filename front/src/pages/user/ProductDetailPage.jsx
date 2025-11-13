@@ -241,6 +241,12 @@ const ProductDetailPage = () => {
                     >
                         Thêm vào giỏ hàng
                     </button>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="bg-gray-500 w-full hover:bg-gray-600 text-white px-6 py-2"
+                    >
+                        Tiếp tục mua sắm
+                    </button>
                 </div>
             </div>
 

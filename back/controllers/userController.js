@@ -25,12 +25,18 @@ exports.signupUser = async (req, res) => {
 
     // Cấu hình Nodemailer
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // App Password, không phải mật khẩu thật
+        pass: process.env.EMAIL_PASS,
       },
+      connectionTimeout: 20000, // 20s
+      greetingTimeout: 20000,
+      socketTimeout: 20000,
     });
+
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
