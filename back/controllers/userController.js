@@ -7,32 +7,28 @@ require("dotenv").config();
 exports.signupUser = async (req, res) => {
   try {
     const { name, email, password, redirect } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const existingUser = await User.findOne({ email });
 
+    // Kiểm tra user đã tồn tại
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
         message: "Email đã được sử dụng, vui lòng sử dụng Email khác.",
       });
     }
-    const payload = {
-      name: name,
-      email: email
-    };
-    const verifyToken = jwt.sign(payload ,process.env.SECRET_KEY, {
-      expiresIn: "15m",
-    });
-    const newUser = new User({ name, email, password: hashedPassword, isVerified:false, verifyToken: verifyToken });
-    await newUser.save();
 
-    // Gửi email xác minh
+    // Tạo payload & token xác minh
+    const payload = { name, email };
+    const verifyToken = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "15m" });
+
+    // Tạo URL xác minh
     const verifyUrl = `${process.env.FRONT_END}/verify-email?token=${verifyToken}&redirected=${encodeURIComponent(redirect)}`;
 
+    // Cấu hình Nodemailer
     const transporter = nodemailer.createTransport({
-      service: "gmail", // có thể đổi sang khác nếu dùng SMTP khác
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: process.env.EMAIL_PASS, // App Password, không phải mật khẩu thật
       },
     });
 
@@ -41,42 +37,44 @@ exports.signupUser = async (req, res) => {
       to: email,
       subject: "Xác minh tài khoản của bạn",
       html: `<div style="font-family: Arial, sans-serif; color: #333; padding: 20px; max-width: 600px; margin: auto; background-color: #f9f9f9; border-radius: 10px;">
-  <h2 style="color: #2e7d32;">Xin chào <strong>${name}</strong>,</h2>
-  
-  <p style="font-size: 16px;">
-    Cảm ơn bạn đã đăng ký tài khoản. Vui lòng bấm vào nút bên dưới để xác minh email và kích hoạt tài khoản:
-  </p>
-
-  <div style="text-align: center; margin: 30px 0;">
-    <a href="${verifyUrl}" 
-       style="display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 6px; font-size: 16px;">
-      Kích hoạt tài khoản
-    </a>
-  </div>
-
-  <p style="font-size: 14px; color: #777;">
-    Nếu bạn không yêu cầu đăng ký, vui lòng bỏ qua email này.
-  </p>
-
-  <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-  <p style="font-size: 12px; color: #aaa; text-align: center;">
-    © 2025 V-Sport. Mọi quyền được bảo lưu.
-  </p>
-</div>
-
-      `,
+        <h2 style="color: #2e7d32;">Xin chào <strong>${name}</strong>,</h2>
+        <p style="font-size: 16px;">
+          Cảm ơn bạn đã đăng ký tài khoản. Vui lòng bấm vào nút bên dưới để xác minh email và kích hoạt tài khoản:
+        </p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verifyUrl}" 
+            style="display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 6px; font-size: 16px;">
+            Kích hoạt tài khoản
+          </a>
+        </div>
+        <p style="font-size: 14px; color: #777;">
+          Nếu bạn không yêu cầu đăng ký, vui lòng bỏ qua email này.
+        </p>
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+        <p style="font-size: 12px; color: #aaa; text-align: center;">
+          © 2025 V-Sport. Mọi quyền được bảo lưu.
+        </p>
+      </div>`,
     };
 
+    // Gửi email trước
     await transporter.sendMail(mailOptions);
+
+    // Nếu gửi thành công thì mới tạo user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ name, email, password: hashedPassword, isVerified: false, verifyToken });
+    await newUser.save();
 
     const userResponse = newUser.toObject();
     delete userResponse.password;
 
-    res.status(201).json({ message: "Đăng ký thành công", user: userResponse });
+    res.status(201).json({ message: "Đăng ký thành công, vui lòng kiểm tra email để xác minh.", user: userResponse });
   } catch (err) {
+    console.error("Lỗi đăng ký:", err.message);
     res.status(400).json({ message: "Đăng ký thất bại", error: err.message });
   }
 };
+
 exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.query;
