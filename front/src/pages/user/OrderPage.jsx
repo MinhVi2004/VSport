@@ -6,9 +6,9 @@ import { Clock, PackageCheck, Truck, XCircle, CheckCircle, BadgeCheck, X } from 
 import { Link } from 'react-router-dom';
 
 const statusIcons = {
-  'Đang xác nhận': <Clock className="text-yellow-500" />,
-  'Đang xử lý': <PackageCheck className="text-blue-500" />,
-  'Đang vận chuyển': <Truck className="text-orange-500" />,
+  ' đang xác nhận': <Clock className="text-yellow-500" />,
+  ' đang xử lý': <PackageCheck className="text-blue-500" />,
+  ' đang vận chuyển': <Truck className="text-orange-500" />,
   'Đã vận chuyển': <CheckCircle className="text-green-600" />,
   'Hoàn thành': <BadgeCheck className="text-green-700" />,
   'Đã hủy': <XCircle className="text-red-500" />,
@@ -71,9 +71,9 @@ const MyOrderPage = () => {
           className="border border-gray-300 rounded px-3 py-2"
         >
           <option value="">Tất cả trạng thái</option>
-          <option>Đang xác nhận</option>
-          <option>Đang xử lý</option>
-          <option>Đang vận chuyển</option>
+          <option> đang xác nhận</option>
+          <option> đang xử lý</option>
+          <option> đang vận chuyển</option>
           <option>Đã vận chuyển</option>
           <option>Hoàn thành</option>
           <option>Đã hủy</option>
@@ -91,7 +91,7 @@ const MyOrderPage = () => {
       </div>
 
       {filteredOrders.length === 0 ? (
-        <p>Không có đơn hàng phù hợp.</p>
+        <p>Không có  đơn hàng phù hợp.</p>
       ) : (
         <div className="space-y-6">
           {filteredOrders.map(order => (
@@ -128,7 +128,7 @@ const MyOrderPage = () => {
               <div className="bg-gray-50 border-t px-4 py-3 flex justify-between items-center">
                 <span className="text-sm text-gray-600 font-medium">Tổng tiền:</span>
                 <span className="text-lg text-red-600 font-bold">
-                  {order.totalAmount.toLocaleString()}₫
+                  {order.totalAmount.toLocaleString()} đ
                 </span>
               </div>
             </Link>

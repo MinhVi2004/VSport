@@ -7,12 +7,14 @@ import { toast } from 'react-toastify';
 
 const CartPage = () => {
     const [cart, setCart] = useState({ items: [] });
+    const [loadingItem, setLoadingItem] = useState(null); // track item đang update/remove
     const navigate = useNavigate();
     const isLoggedIn = !!sessionStorage.getItem('token');
 
     useEffect(() => {
         fetchCart();
     }, []);
+
     const handleCheckout = () => {
         if (cart.items.length === 0) {
             toast.info('Vui lòng chọn thêm sản phẩm để tiếp tục');
@@ -27,7 +29,9 @@ const CartPage = () => {
             navigate('/checkout');
         }
     };
+
     const handleContinueShopping = () => navigate('/');
+
     const fetchCart = async () => {
         const token = sessionStorage.getItem('token');
         if (token) {
@@ -46,41 +50,84 @@ const CartPage = () => {
     const getItemId = item => {
         const productId = item.product._id;
         const size = getProductSize(item);
-        const variant = item.variant?.color || item.color || 'default';
+        const variant = getProductColor(item); // dùng getProductColor
         return isLoggedIn ? item._id : `${productId}-${variant}-${size}`;
     };
 
     const getProductName = item => item.product?.name || item.name;
     const getProductImage = item =>
         item.variant?.image || item.product?.images?.[0]?.url;
-    const getProductPrice = item =>
-        item.size?.price || item.product?.price || item.price || 0;
-    const getProductSize = item =>
-        typeof item.size === 'string' ? item.size : item.size?.size || '';
-    const getProductColor = item => item.variant?.color || item.color || '';
-
-    const updateQuantity = async (itemId, newQty) => {
-        const token = sessionStorage.getItem('token');
-
-        if (token) {
-            await axiosInstance.put('/api/cart', { itemId, quantity: newQty });
-        } else {
-            const [productId, color, size] = itemId.split('-');
-            let cartData = JSON.parse(localStorage.getItem('cart')) || [];
-
-            cartData = cartData.map(item => {
-                const match =
-                    item.product._id === productId &&
-                    getProductSize(item) === size &&
-                    getProductColor(item) === color;
-
-                return match ? { ...item, quantity: newQty } : item;
-            });
-
-            localStorage.setItem('cart', JSON.stringify(cartData));
+    // Lấy giá sản phẩm
+    const getProductPrice = item => {
+        // 1. Nếu có variant và size, và variant.sizes là mảng
+        if (item.variant && item.size && Array.isArray(item.variant.sizes)) {
+            const sizeObj = item.variant.sizes.find(s => s.size === item.size);
+            if (sizeObj && sizeObj.price != null) return sizeObj.price;
         }
 
-        fetchCart();
+        // 2. Nếu item có price trực tiếp (localStorage), dùng luôn
+        if (item.price != null) return item.price;
+
+        // 3. Fallback về product.price nếu có
+        return item.product?.price || 0;
+    };
+
+    // Lấy size sản phẩm
+    const getProductSize = item => {
+        if (!item.size) return 'default'; // nếu không có size
+        return typeof item.size === 'string'
+            ? item.size
+            : item.size?.size || 'default';
+    };
+
+    // Lấy màu sản phẩm
+    // Lấy màu sản phẩm, default 'default' nếu null
+    const getProductColor = item => {
+        return item.variant?.color || item.color || 'default';
+    };
+
+    const updateQuantity = async (itemId, newQty) => {
+        setLoadingItem(itemId);
+        const token = sessionStorage.getItem('token');
+
+        try {
+            let cartData = JSON.parse(localStorage.getItem('cart')) || [];
+
+            if (token) {
+                await axiosInstance.put('/api/cart', {
+                    itemId,
+                    quantity: newQty,
+                });
+                const res = await axiosInstance.get('/api/cart');
+                cartData = res.data.items || [];
+            } else {
+                const [productId, color, size] = itemId.split('-');
+                cartData = cartData.map(item => {
+                    const match =
+                        item.product._id === productId &&
+                        getProductSize(item) === size &&
+                        getProductColor(item) === color;
+
+                    return match ? { ...item, quantity: newQty } : item;
+                });
+
+                // cập nhật localStorage cart
+                localStorage.setItem('cart', JSON.stringify(cartData));
+            }
+
+            const cartQuantity = cartData.reduce(
+                (sum, item) => sum + item.quantity,
+                0
+            );
+            localStorage.setItem('cartQuantity', JSON.stringify(cartQuantity));
+            window.dispatchEvent(new Event('cartUpdated'));
+            fetchCart();
+        } catch (err) {
+            console.error(err);
+            toast.error('Cập nhật số lượng thất bại');
+        } finally {
+            setLoadingItem(null);
+        }
     };
 
     const removeItem = async itemId => {
@@ -95,27 +142,44 @@ const CartPage = () => {
 
         if (!confirm.isConfirmed) return;
 
+        setLoadingItem(itemId);
         const token = sessionStorage.getItem('token');
 
-        if (token) {
-            await axiosInstance.delete(`/api/cart/${itemId}`);
-        } else {
-            const [productId, color, size] = itemId.split('-');
+        try {
             let cartData = JSON.parse(localStorage.getItem('cart')) || [];
 
-            cartData = cartData.filter(
-                item =>
-                    !(
-                        item.product._id === productId &&
-                        getProductSize(item) === size &&
-                        getProductColor(item) === color
-                    )
+            if (token) {
+                await axiosInstance.delete(`/api/cart/${itemId}`);
+                const res = await axiosInstance.get('/api/cart');
+                cartData = res.data.items || [];
+            } else {
+                const [productId, color, size] = itemId.split('-');
+                cartData = cartData.filter(
+                    item =>
+                        !(
+                            item.product._id === productId &&
+                            getProductSize(item) === size &&
+                            getProductColor(item) === color
+                        )
+                );
+
+                // cập nhật localStorage cart
+                localStorage.setItem('cart', JSON.stringify(cartData));
+            }
+
+            const cartQuantity = cartData.reduce(
+                (sum, item) => sum + item.quantity,
+                0
             );
-
-            localStorage.setItem('cart', JSON.stringify(cartData));
+            localStorage.setItem('cartQuantity', JSON.stringify(cartQuantity));
+            window.dispatchEvent(new Event('cartUpdated'));
+            fetchCart();
+        } catch (err) {
+            console.error(err);
+            toast.error('Xoá sản phẩm thất bại');
+        } finally {
+            setLoadingItem(null);
         }
-
-        fetchCart();
     };
 
     const total = (cart.items || []).reduce(
@@ -137,12 +201,20 @@ const CartPage = () => {
                         {cart.items.map(item => {
                             const itemId = getItemId(item);
                             const productId = item.product?._id || item.product;
+                            const price = getProductPrice(item);
+                            const totalPrice = price * item.quantity;
+                            const isLoading = loadingItem === itemId;
 
                             return (
                                 <div
                                     key={itemId}
-                                    className="flex items-center gap-4 bg-white rounded-lg shadow-sm p-4"
+                                    className="flex items-center gap-4 bg-white rounded-lg shadow-sm p-4 opacity-100 relative"
                                 >
+                                    {isLoading && (
+                                        <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10">
+                                            <div className="loader border-4 border-blue-500 border-t-transparent rounded-full w-8 h-8 animate-spin"></div>
+                                        </div>
+                                    )}
                                     <img
                                         src={getProductImage(item)}
                                         alt={getProductName(item)}
@@ -162,25 +234,25 @@ const CartPage = () => {
                                         >
                                             {getProductName(item)}
                                         </h2>
-                                        {(getProductColor(item) ||
-                                            getProductSize(item) !==
-                                                'default') && (
+                                        {!(getProductColor(item) === 'default' && getProductSize(item) === 'default') && (
                                             <p className="text-sm text-gray-500 mt-1">
-                                                {getProductColor(item)}{' '}
-                                                {getProductSize(item) &&
-                                                    `- ${getProductSize(item)}`}
+                                                {getProductColor(item) !== 'default' && getProductColor(item)}{' '}
+                                                {getProductSize(item) !== 'default' && `- ${getProductSize(item)}`}
                                             </p>
                                         )}
-                                        <p className="text-red-600 font-bold mt-1">
-                                            {getProductPrice(
-                                                item
-                                            ).toLocaleString()}
+
+                                        <p className="text-sm text-gray-600 font-bold mt-1">
+                                            {price.toLocaleString()} đ
+                                        </p>
+                                        <p className="text-m text-red-600 font-medium mt-1">
+                                            Tổng: {totalPrice.toLocaleString()}{' '}
                                             đ
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <button
-                                            className="p-1 bg-gray-100 rounded hover:bg-gray-200"
+                                            className="p-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+                                            disabled={isLoading}
                                             onClick={() =>
                                                 updateQuantity(
                                                     itemId,
@@ -197,7 +269,8 @@ const CartPage = () => {
                                             {item.quantity}
                                         </span>
                                         <button
-                                            className="p-1 bg-gray-100 rounded hover:bg-gray-200"
+                                            className="p-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+                                            disabled={isLoading}
                                             onClick={() =>
                                                 updateQuantity(
                                                     itemId,
@@ -209,7 +282,8 @@ const CartPage = () => {
                                         </button>
                                     </div>
                                     <button
-                                        className="text-red-500 hover:text-red-700 transition ml-4"
+                                        className="text-red-500 hover:text-red-700 transition ml-4 disabled:opacity-50"
+                                        disabled={isLoading}
                                         onClick={() => removeItem(itemId)}
                                     >
                                         <Trash2 size={20} />
@@ -225,12 +299,12 @@ const CartPage = () => {
                 <h2 className="text-xl font-bold mb-4">Tóm tắt đơn hàng</h2>
                 <div className="flex justify-between text-gray-700 mb-2">
                     <span>Tạm tính</span>
-                    <span>{total.toLocaleString()}đ</span>
+                    <span>{total.toLocaleString()} đ</span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg border-t pt-4 mt-4">
                     <span>Tổng cộng</span>
                     <span className="text-red-600">
-                        {total.toLocaleString()}đ
+                        {total.toLocaleString()} đ
                     </span>
                 </div>
                 <div className="mt-6 space-y-2">
@@ -248,6 +322,23 @@ const CartPage = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Loader CSS */}
+            <style>{`
+                .loader {
+                    border-width: 4px;
+                    border-style: solid;
+                    border-color: blue transparent transparent transparent;
+                    border-radius: 50%;
+                    width: 32px;
+                    height: 32px;
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg);}
+                    100% { transform: rotate(360deg);}
+                }
+            `}</style>
         </div>
     );
 };

@@ -7,7 +7,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom"; // thêm vào đầu file
-// ✅ Định dạng VND
+// ✅ định dạng VND
 const formatCurrency = (value) => {
   if (!value && value !== 0) return '';
   return value.toLocaleString("vi-VN", {
@@ -62,7 +62,7 @@ const OrderTable = ({ orders }) => {
               </td>
               <td className="px-4 py-3">
                 {order.isPaid ? (
-                  <span className="text-green-600 font-semibold">✓ Đã thanh toán</span>
+                  <span className="text-green-600 font-semibold">✓Đã thanh toán</span>
                 ) : (
                   <span className="text-red-500 font-semibold">✕ Chưa thanh toán</span>
                 )}

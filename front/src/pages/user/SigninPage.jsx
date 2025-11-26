@@ -36,7 +36,7 @@ const SigninPage = () => {
     sessionStorage.setItem('user', JSON.stringify(user));
     sessionStorage.setItem('role', user.role);
 
-    toast.success('Đăng nhập thành công!');
+    toast.success(' đăng nhập thành công!');
     if (user.role === 'staff') {
       navigate('/staff');
     } else {
@@ -48,10 +48,26 @@ const SigninPage = () => {
     const localCart = JSON.parse(localStorage.getItem('cart')) || [];
     if (localCart.length > 0) {
       try {
-        await axios.post(`${BACKEND_URL}api/cart/merge`, { items: localCart }, {
+        await axios.post(`${BACKEND_URL}/api/cart/merge`, { items: localCart }, {
           headers: { Authorization: `Bearer ${token}` },
         });
         localStorage.removeItem('cart');
+         // Xoá localStorage.cart
+      localStorage.removeItem('cart');
+
+      // Lấy lại cart từ server
+      const res = await axios.get(`${BACKEND_URL}/api/cart`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const serverCart = res.data.items || [];
+
+      // Tính cartQuantity
+      const cartQuantity = serverCart.reduce((sum, item) => sum + item.quantity, 0);
+      localStorage.setItem('cartQuantity', JSON.stringify(cartQuantity));
+
+      // Phát event để component khác update
+      window.dispatchEvent(new Event('cartUpdated'));
       } catch (err) {
         console.error('Lỗi khi đồng bộ giỏ hàng:', err);
       }
@@ -82,7 +98,7 @@ const SigninPage = () => {
 
   const handleFacebookLoginToServer = async userInfo => {
     try {
-      const res = await axios.post(`${BACKEND_URL}api/user/signinByFacebook`, {
+      const res = await axios.post(`${BACKEND_URL}/api/user/signinByFacebook`, {
         email: userInfo.email,
         name: userInfo.name,
       });
@@ -91,13 +107,13 @@ const SigninPage = () => {
       await mergeLocalCart(token);
       handleRedirectAfterLogin(user, token);
     } catch (error) {
-      toast.error('Đăng nhập bằng Facebook thất bại.');
+      toast.error(' đăng nhập bằng Facebook thất bại.');
     }
   };
 
   const handleGoogleLogin = async userLogin => {
     try {
-      const res = await axios.post(`${BACKEND_URL}api/user/signinByGoogle`, {
+      const res = await axios.post(`${BACKEND_URL}/api/user/signinByGoogle`, {
         email: userLogin.email,
         name: userLogin.name,
       });
@@ -106,7 +122,7 @@ const SigninPage = () => {
       await mergeLocalCart(token);
       handleRedirectAfterLogin(user, token);
     } catch (error) {
-      toast.error('Đăng nhập bằng Google thất bại.');
+      toast.error(' đăng nhập bằng Google thất bại.');
     }
   };
 
@@ -123,7 +139,7 @@ const SigninPage = () => {
       }
     },
     onError: () => {
-      toast.error('Đăng nhập Google thất bại.');
+      toast.error(' đăng nhập Google thất bại.');
     },
   });
 
@@ -156,7 +172,7 @@ const SigninPage = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post(`${BACKEND_URL}api/user/signin`, { email, password });
+      const res = await axios.post(`${BACKEND_URL}/api/user/signin`, { email, password });
       const { user, token } = res.data;
 
       if (user.type === 'normal' && !user.isVerified) {
@@ -167,7 +183,7 @@ const SigninPage = () => {
       await mergeLocalCart(token);
       handleRedirectAfterLogin(user, token);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Đăng nhập thất bại.');
+      toast.error(error.response?.data?.message || ' đăng nhập thất bại.');
     }finally {
       setLoading(false);
     }
@@ -189,7 +205,7 @@ const SigninPage = () => {
             <X size={36} />
           </button>
 
-          <h2 className="text-4xl font-bold mb-6 text-center text-gray-700 font-pattaya">Đăng nhập</h2>
+          <h2 className="text-4xl font-bold mb-6 text-center text-gray-700 font-pattaya"> đăng nhập</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block font-medium text-gray-700">Email</label>
@@ -218,7 +234,7 @@ const SigninPage = () => {
               disabled={loading}
               className={`w-full text-white font-semibold py-2 px-4 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
-              {loading ? 'Đang xử lý...' : 'Đăng nhập'}
+              {loading ? ' đang xử lý...' : ' đăng nhập'}
             </button>
             <div className="text-right mt-2">
               <button
@@ -248,7 +264,7 @@ const SigninPage = () => {
           <p className="mt-4 text-center text-gray-600">
             Chưa có tài khoản?{' '}
             <a href={`/signup?redirect=${redirect}`} className="text-blue-500 hover:underline">
-              Đăng ký
+              đăng ký
             </a>
           </p>
         </div>

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import axiosInstance from "./../../utils/axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom"; // nếu dùng react-router
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const navigate = useNavigate(); // hook để điều hướng
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -15,15 +17,17 @@ const ForgotPassword = () => {
     }
   };
 
+  const handleClose = () => {
+    navigate("/signin"); // chuyển về trang signin
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 relative">
         <h2 className="text-2xl font-semibold text-blue-600 mb-6 text-center">
           Khôi phục mật khẩu
         </h2>
-        {/* <p className="text-gray-500 text-sm mb-6 text-center">
-          Nhập địa chỉ email của bạn và chúng tôi sẽ gửi liên kết đặt lại mật khẩu.
-        </p> */}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
@@ -40,6 +44,14 @@ const ForgotPassword = () => {
             Gửi email khôi phục
           </button>
         </form>
+
+        {/* Nút close */}
+        <button
+          onClick={handleClose}
+          className="mt-4 w-full text-center text-blue-600 hover:text-blue-800 py-2 border border-blue-600 rounded-xl transition duration-300"
+        >
+          Quay về đăng nhập
+        </button>
       </div>
     </div>
   );

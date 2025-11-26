@@ -13,7 +13,7 @@ const ListProduct = () => {
     const navigate = useNavigate();
 
     const fetchProducts = async () => {
-        const res = await axiosInstance.get('api/product');
+        const res = await axiosInstance.get('/api/product');
         setProducts(res.data);
     };
 

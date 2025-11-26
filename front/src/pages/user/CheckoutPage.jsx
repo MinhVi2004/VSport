@@ -29,7 +29,22 @@ const CheckoutPage = () => {
 
     const navigate = useNavigate();
     const user = JSON.parse(sessionStorage.getItem('user'));
+    // Thêm hàm lấy giá sản phẩm
+    const getItemPrice = item => {
+        // Nếu có variant và size
+        if (item.variant && item.size) {
+            const sizeObj = item.variant.sizes?.find(s => s.size === item.size);
+            if (sizeObj) return sizeObj.price;
+        }
+        // fallback: giá product
+        return item.product?.price || 0;
+    };
 
+    // Tính tổng tiền
+    const totalPrice = cartItems.reduce(
+        (total, item) => total + getItemPrice(item) * item.quantity,
+        0
+    );
     const fetchAddresses = async () => {
         try {
             const res = await axiosInstance.get('/api/address');
@@ -146,7 +161,7 @@ const CheckoutPage = () => {
         }
 
         if (!form.detail.trim() || form.detail.trim().length < 6) {
-            toast.warning('Địa chỉ chi tiết phải có ít nhất 6 ký tự.');
+            toast.warning(' Địa chỉ chi tiết phải có ít nhất 6 ký tự.');
             return;
         }
 
@@ -167,56 +182,55 @@ const CheckoutPage = () => {
         }
     };
 
-    const handleEdit = async (address) => {
-  setFormVisible(true);
-  setIsEdit(true);
-  setEditId(address._id);
-  setForm(address); // Gán trước để hiển thị dữ liệu sẵn
+    const handleEdit = async address => {
+        setFormVisible(true);
+        setIsEdit(true);
+        setEditId(address._id);
+        setForm(address); // Gán trước để hiển thị dữ liệu sẵn
 
-  // Đảm bảo provinces đã có
-  if (provinces.length === 0) {
-    await fetchProvinces();
-  }
+        // đảm bảo provincesĐã có
+        if (provinces.length === 0) {
+            await fetchProvinces();
+        }
 
-  // Tìm province đang chọn
-  const selectedProvince = provinces.find(
-    (p) => p.name === address.province
-  );
+        // Tìm province đang chọn
+        const selectedProvince = provinces.find(
+            p => p.name === address.province
+        );
 
-  if (selectedProvince) {
-    // Fetch danh sách quận/huyện theo tỉnh
-    const res = await fetch(
-      `https://provinces.open-api.vn/api/p/${selectedProvince.code}?depth=2`
-    );
-    const data = await res.json();
-    const fetchedDistricts = data.districts;
-    setDistricts(fetchedDistricts);
+        if (selectedProvince) {
+            // Fetch danh sách quận/huyện theo tỉnh
+            const res = await fetch(
+                `https://provinces.open-api.vn/api/p/${selectedProvince.code}?depth=2`
+            );
+            const data = await res.json();
+            const fetchedDistricts = data.districts;
+            setDistricts(fetchedDistricts);
 
-    // Tìm district đang chọn
-    const selectedDistrict = fetchedDistricts.find(
-      (d) => d.name === address.district
-    );
+            // Tìm district đang chọn
+            const selectedDistrict = fetchedDistricts.find(
+                d => d.name === address.district
+            );
 
-    if (selectedDistrict) {
-      // Gán lại để đảm bảo cập nhật (cần thiết trong một số trường hợp)
-      setForm((prev) => ({ ...prev, district: selectedDistrict.name }));
+            if (selectedDistrict) {
+                // Gán lại để đảm bảo cập nhật (cần thiết trong một số trường hợp)
+                setForm(prev => ({ ...prev, district: selectedDistrict.name }));
 
-      // Fetch danh sách phường/xã theo quận/huyện
-      const res2 = await fetch(
-        `https://provinces.open-api.vn/api/d/${selectedDistrict.code}?depth=2`
-      );
-      const data2 = await res2.json();
-      setWards(data2.wards);
+                // Fetch danh sách phường/xã theo quận/huyện
+                const res2 = await fetch(
+                    `https://provinces.open-api.vn/api/d/${selectedDistrict.code}?depth=2`
+                );
+                const data2 = await res2.json();
+                setWards(data2.wards);
 
-      // Đảm bảo form.ward cũng được cập nhật đúng
-      setForm((prev) => ({
-        ...prev,
-        ward: address.ward, // Đảm bảo chọn lại đúng phường
-      }));
-    }
-  }
-};
-
+                // đảm bảo form.ward cũng được cập nhật đúng
+                setForm(prev => ({
+                    ...prev,
+                    ward: address.ward, // đảm bảo chọn lại đúng phường
+                }));
+            }
+        }
+    };
 
     const handleDelete = async id => {
         if (confirm('Xác nhận xóa địa chỉ này?')) {
@@ -239,14 +253,9 @@ const CheckoutPage = () => {
         setEditId(null);
     };
 
-    const totalPrice = cartItems.reduce(
-        (total, item) => total + item.product.price * item.quantity,
-        0
-    );
-
     const handleConfirm = async () => {
         if (isSubmitting) return; // ⬅️ Nếu đang xử lý thì bỏ qua
-        setIsSubmitting(true);    // ⬅️ Khóa nút lại
+        setIsSubmitting(true); // ⬅️ Khóa nút lại
 
         if (!selectedAddress) {
             toast.warning('Vui lòng chọn địa chỉ giao hàng');
@@ -274,7 +283,7 @@ const CheckoutPage = () => {
             const orderId = createOrderRes.data._id;
 
             if (paymentMethod === 'COD') {
-                toast.success('Đặt hàng thành công với phương thức COD!');
+                toast.success(' đặt hàng thành công với phương thức COD!');
                 navigate(`/payment-result-cod/${orderId}`);
             } else if (paymentMethod === 'vnpay') {
                 const res = await axiosInstance.post(
@@ -286,14 +295,14 @@ const CheckoutPage = () => {
                 );
                 // const updateStatus = await axiosInstance.put(`/api/order/pay/${orderId}`);
 
-                // toast.success('Đặt hàng thành công với phương thức VNPay!');
+                // toast.success(' đặt hàng thành công với phương thức VNPay!');
                 // navigate(`/payment-result/${orderId}`); // hoặc chuyển sang trang lịch sử đơn hàng
                 window.location.href = res.data.url;
             }
         } catch (err) {
             console.error(err);
-            toast.error('Đặt hàng thất bại!');
-        }finally {
+            toast.error(' đặt hàng thất bại!');
+        } finally {
             setIsSubmitting(false); // ⬅️ Mở lại khi xong
         }
     };
@@ -302,7 +311,10 @@ const CheckoutPage = () => {
             {/* LEFT: Address Section */}
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Địa chỉ giao hàng</h2>
+                    <h2 className="text-xl font-semibold">
+                        {' '}
+                        Địa chỉ giao hàng
+                    </h2>
                     <button
                         onClick={() => {
                             resetForm();
@@ -520,7 +532,7 @@ const CheckoutPage = () => {
                                     <div className="w-5 h-5 border border-gray-400 rounded flex items-center justify-center peer-checked:bg-blue-600 peer-checked:border-blue-600">
                                         <Check className="w-4 h-4 text-white peer-checked:block hidden" />
                                     </div>
-                                    <span>Đặt làm địa chỉ mặc định</span>
+                                    <span> đặt làm địa chỉ mặc định</span>
                                 </label>
 
                                 <div className="flex justify-end gap-2">
@@ -563,7 +575,11 @@ const CheckoutPage = () => {
                                     className="flex items-center gap-4 border-b pb-4"
                                 >
                                     <img
-                                        src={item.variant?item.variant.image:item.product.images[0]?.url}
+                                        src={
+                                            item.variant
+                                                ? item.variant.image
+                                                : item.product.images[0]?.url
+                                        }
                                         alt={item.product.name}
                                         className="w-20 h-20 object-cover rounded-md"
                                     />
@@ -582,7 +598,7 @@ const CheckoutPage = () => {
                                         )}
                                     </div>
                                     <div className="font-bold text-blue-600">
-                                        {item.product.price.toLocaleString()}₫
+                                        {getItemPrice(item).toLocaleString()} đ
                                     </div>
                                 </div>
                             ))}
@@ -591,7 +607,7 @@ const CheckoutPage = () => {
                         <div className="mt-6 text-right text-lg font-semibold">
                             Tổng tiền:{' '}
                             <span className="text-red-600">
-                                {totalPrice.toLocaleString()}₫
+                                {totalPrice.toLocaleString()} đ
                             </span>
                         </div>
                         <div className="mt-6">
@@ -625,24 +641,34 @@ const CheckoutPage = () => {
                         </div>
 
                         {paymentMethod === 'COD' ? (
-                <button
-                    className={`w-full mt-6 bg-blue-600 text-white py-2 rounded-sm transition-all flex items-center justify-center gap-2 
-                        ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
-                    onClick={handleConfirm}
-                    disabled={isSubmitting} // ⬅️ Disable khi đang xử lý
-                >
-                    <CheckCircle size={20} /> {isSubmitting ? 'Đang xử lý...' : 'Đặt hàng'}
-                </button>
-            ) : (
-                <button
-                    className={`w-full mt-6 bg-green-500 text-white py-2 rounded-sm transition-all flex items-center justify-center gap-2 
-                        ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'}`}
-                    onClick={handleConfirm}
-                    disabled={isSubmitting}
-                >
-                    <CheckCircle size={20} /> {isSubmitting ? 'Đang xử lý...' : 'Thanh toán'}
-                </button>
-            )}
+                            <button
+                                className={`w-full mt-6 bg-blue-600 text-white py-2 rounded-sm transition-all flex items-center justify-center gap-2 
+                        ${
+                            isSubmitting
+                                ? 'opacity-50 cursor-not-allowed'
+                                : 'hover:bg-blue-700'
+                        }`}
+                                onClick={handleConfirm}
+                                disabled={isSubmitting} // ⬅️ Disable khi đang xử lý
+                            >
+                                <CheckCircle size={20} />{' '}
+                                {isSubmitting ? ' đang xử lý...' : ' đặt hàng'}
+                            </button>
+                        ) : (
+                            <button
+                                className={`w-full mt-6 bg-green-500 text-white py-2 rounded-sm transition-all flex items-center justify-center gap-2 
+                        ${
+                            isSubmitting
+                                ? 'opacity-50 cursor-not-allowed'
+                                : 'hover:bg-green-600'
+                        }`}
+                                onClick={handleConfirm}
+                                disabled={isSubmitting}
+                            >
+                                <CheckCircle size={20} />{' '}
+                                {isSubmitting ? ' đang xử lý...' : 'Thanh toán'}
+                            </button>
+                        )}
                     </>
                 )}
             </div>

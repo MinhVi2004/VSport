@@ -73,38 +73,29 @@ const SignupPage = () => {
         }
 
         try {
-            setLoading(true); // bắt đầu disable nút
-            const res = await axios.post(BACKEND_URL + 'api/user/signup', {
+            setLoading(true);
+
+            const res = await axios.post(`${BACKEND_URL}/api/user/signup`, {
                 name,
-                // gender,
                 email,
                 password,
-                redirect,
+                redirect, // cần định nghĩa redirect trước
             });
 
-            toast.success(
-                'Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.'
-            );
+            toast.success(' đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.');
 
-            setFormData({
-                name: '',
-                // gender: "",
-                email: '',
-                password: '',
-                confirmPassword: '',
-            });
-            // Chờ 1.5 giây rồi mới chuyển hướng
+            setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+
             setTimeout(() => {
-                navigate(`/signin?redirect=${redirect}`, { replace: true });
+                navigate(redirect ? `/signin?redirect=${redirect}` : '/signin', { replace: true });
             }, 1500);
+
             console.log('Server trả về:', res.data);
         } catch (error) {
-            console.error('Lỗi đăng ký:', error.response.data);
-            toast.error(
-                error.response?.data?.message || 'Lỗi kết nối đến máy chủ.'
-            );
+            console.error('Lỗi đăng ký:', error.response);
+            toast.error(error.response?.data?.message || 'Lỗi kết nối đến máy chủ.');
         } finally {
-            setLoading(false); // mở lại nút sau khi xong
+            setLoading(false);
         }
     };
 
@@ -130,7 +121,7 @@ const SignupPage = () => {
                         <X size={40} />
                     </button>
                     <h2 className="text-4xl font-bold mb-6 text-center text-gray-700 font-pattaya">
-                        Đăng ký
+                        đăng ký
                     </h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
@@ -236,16 +227,16 @@ const SignupPage = () => {
                                     : 'bg-blue-600 hover:bg-blue-700'
                             }`}
                         >
-                            {loading ? 'Đang xử lý...' : 'Đăng ký'}
+                            {loading ? ' đang xử lý...' : ' đăng ký'}
                         </button>
                     </form>
                     <p className="mt-4 text-center text-gray-600">
-                        Đã có tài khoản?{' '}
+                       Đã có tài khoản?{' '}
                         <a
                             href="/signin"
                             className="text-blue-500 hover:underline"
                         >
-                            Đăng nhập
+                            đăng nhập
                         </a>
                     </p>
                 </div>

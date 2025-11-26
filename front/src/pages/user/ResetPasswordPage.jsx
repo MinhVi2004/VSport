@@ -21,10 +21,10 @@ const ResetPassword = () => {
       await axiosInstance.post(`/api/forget/reset-password/${token}`, {
         password,
       });
-      toast.success("Đổi mật khẩu thành công!");
+      toast.success(" đổi mật khẩu thành công!");
       navigate("/signin");
     } catch (err) {
-      toast.error("Token không hợp lệ hoặc đã hết hạn!");
+      toast.error("Token không hợp lệ hoặcĐã hết hạn!");
     }
   };
 

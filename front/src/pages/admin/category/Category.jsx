@@ -10,7 +10,7 @@ const ListCategory = () => {
       const navigate = useNavigate();
       const fetchCategories = async () => {
             try {
-                  const res = await axiosInstance.get('api/category');
+                  const res = await axiosInstance.get('/api/category');
                   setCategories(res.data);
             } catch (err) {
                   console.error('Lỗi khi lấy danh sách danh mục:', err);

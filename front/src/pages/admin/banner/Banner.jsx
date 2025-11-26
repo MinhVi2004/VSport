@@ -7,11 +7,11 @@ import Swal from 'sweetalert2';
 const ListBanner = () => {
       const [banners, setBanners] = useState([]);
       const navigate = useNavigate(); // Hook để điều hướng
-      const [isFull, setIsFull] = useState(false); // Trạng thái để kiểm tra xem đã đủ 6 banner hay chưa
+      const [isFull, setIsFull] = useState(false); // Trạng thái để kiểm tra xemĐã đủ 6 banner hay chưa
 
       const fetchBanners = async () => {
             try {
-                  const res = await axiosInstance.get('api/banner');
+                  const res = await axiosInstance.get('/api/banner');
                   setBanners(res.data);
             } catch (err) {
                   console.error('Lỗi khi lấy danh sách banner:', err);

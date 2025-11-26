@@ -34,7 +34,7 @@ const ContactPage = () => {
     try {
       setIsSending(true);
       await axiosInstance.post("/api/email", formData);
-       toast.success("Gửi thành công! Cảm ơn bạn đã liên hệ.");
+       toast.success("Gửi thành công! Cảm ơn bạnĐã liên hệ.");
       setFormData({ name: "", email: "", message: "" });
     } catch (err) {
       toast.error("Gửi thất bại. Vui lòng thử lại.");
@@ -59,7 +59,7 @@ const ContactPage = () => {
   rel="noopener noreferrer"
   className="flex items-center gap-2 hover:underline text-black-700"
 >
-  <MapPin  className="w-8"/> Trường Đại học Sài Gòn, Quận 5, TP.HCM
+  <MapPin  className="w-8"/> Trường  đại học Sài Gòn, Quận 5, TP.HCM
 </a>
 
           <a
@@ -134,7 +134,7 @@ const ContactPage = () => {
             }`}
             disabled={!isValid || isSending}
           >
-            {isSending ? "Đang gửi..." : "Gửi ý kiến"}
+            {isSending ? " đang gửi..." : "Gửi ý kiến"}
           </button>
 
           {status && (

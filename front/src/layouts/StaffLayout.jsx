@@ -71,12 +71,12 @@ const StaffLayout = () => {
       <FileText size={18} /> Xem đơn hàng
     </button>
 
-    {/* Đăng xuất */}
+    {/* đăng xuất */}
     <button
       onClick={handleLogout}
       className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition"
     >
-      <LogOut size={18} /> Đăng xuất
+      <LogOut size={18} /> đăng xuất
     </button>
   </div>
 </header>

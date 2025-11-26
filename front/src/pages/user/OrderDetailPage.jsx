@@ -75,7 +75,7 @@ const OrderDetailPage = () => {
     if (!order)
         return (
             <div className="p-6 text-center text-gray-600">
-                Đang tải đơn hàng...
+                đang tải đơn hàng...
             </div>
         );
 
@@ -96,7 +96,7 @@ const OrderDetailPage = () => {
                 <h1 className="text-3xl font-bold text-black-600">
                     Chi tiết đơn hàng
                 </h1>
-                {/* <p className="text-gray-600 mt-2">Cảm ơn bạn đã đặt hàng tại cửa hàng của chúng tôi.</p> */}
+                {/* <p className="text-gray-600 mt-2">Cảm ơn bạnĐã đặt hàng tại cửa hàng của chúng tôi.</p> */}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
@@ -138,7 +138,7 @@ const OrderDetailPage = () => {
                                         </p>
                                     </div>
                                     <div className="text-right font-semibold text-gray-800">
-                                        {item.price.toLocaleString()}₫
+                                        {item.price.toLocaleString()} đ
                                     </div>
                                 </div>
                             ))}
@@ -148,10 +148,10 @@ const OrderDetailPage = () => {
 
                 {/* Phải: địa chỉ + thông tin đơn hàng */}
                 <div className="space-y-6 md:col-span-2">
-                    {/* Địa chỉ giao hàng */}
+                    {/* địa chỉ giao hàng */}
                     <div className="bg-white rounded-2xl shadow p-5 border">
                         <h2 className="flex items-center gap-2 font-semibold text-gray-800 mb-2">
-                            <MapPin size={20} /> Địa chỉ giao hàng
+                            <MapPin size={20} />Địa chỉ giao hàng
                         </h2>
                         <p className="text-gray-700 font-medium">
                             {order.address.fullName} -{' '}
@@ -213,7 +213,7 @@ const OrderDetailPage = () => {
                         <div className="mt-6 border-t pt-4 flex justify-between text-base font-semibold">
                             <span>Tổng thanh toán:</span>
                             <span className="text-xl text-black">
-                                {order.totalAmount.toLocaleString()}₫
+                                {order.totalAmount.toLocaleString()} đ
                             </span>
                         </div>
                         {!order.isPaid && (

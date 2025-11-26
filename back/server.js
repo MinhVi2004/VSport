@@ -4,6 +4,7 @@ const dotenv = require("dotenv").config();
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const connectDB = require("./config/db");
+const setupSwagger = require('./swagger');
 
 // Import routes
 const addressRoutes = require("./routes/addressRoutes");
@@ -76,7 +77,7 @@ try {
 } catch (err) {
   console.error("Error when loading routes:", err.message);
 }
-
+setupSwagger(app);
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);

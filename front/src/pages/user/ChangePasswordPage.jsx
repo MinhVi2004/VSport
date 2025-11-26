@@ -49,7 +49,7 @@ const ChangePasswordPage = () => {
                     'user',
                     JSON.stringify(result.data.user)
                 );
-                toast.success('Đổi mật khẩu thành công!');
+                toast.success(' đổi mật khẩu thành công!');
                 navigate('/profile');
             }
         } catch (err) {
@@ -73,7 +73,7 @@ const ChangePasswordPage = () => {
                 className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-6"
             >
                 <h2 className="text-2xl font-bold text-center text-gray-800">
-                    Đổi mật khẩu
+                    đổi mật khẩu
                 </h2>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">

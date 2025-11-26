@@ -23,7 +23,7 @@ const ProductList = ({ products, addToCart }) => {
                 {product.category.name}
               </p>
               <p className="text-blue-600 font-semibold mt-1">
-                {product.price.toLocaleString()} ₫
+                {product.price.toLocaleString()} đ
               </p>
             </div>
             <div className="flex justify-center mt-4">

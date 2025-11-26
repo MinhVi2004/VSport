@@ -6,11 +6,26 @@ import {User, Phone, House, ShoppingCart, Search ,
   LogOut,NotepadText  
 } from "lucide-react";
 import Swal from 'sweetalert2';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const Header = () => {
     const user = JSON.parse(sessionStorage.getItem('user'));
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [cartQuantity, setCartQuantity] = useState(0);
+
+    useEffect(() => {
+    const updateQuantity = () => {
+        const quantity = JSON.parse(localStorage.getItem('cartQuantity')) || 0;
+        setCartQuantity(quantity);
+    };
+
+    updateQuantity(); // load khi mount
+
+    window.addEventListener('cartUpdated', updateQuantity);
+
+    return () => window.removeEventListener('cartUpdated', updateQuantity);
+}, []);
+
 
     // Xử lý đăng xuất
     const handleLogout = async () => {
@@ -29,6 +44,7 @@ const Header = () => {
             sessionStorage.clear();
             window.location.href = '/';
         }
+        localStorage.removeItem('cartQuantity');
     };
 
     return (
@@ -76,12 +92,19 @@ const Header = () => {
 
                     <Link
                         to="/cart"
-                        className="flex flex-col items-center gap-1 hover:text-blue-800 transition"
+                        className="relative flex flex-col items-center gap-1 hover:text-blue-800 transition"
                     >
                         <ShoppingCart size={22} />
                         
+                        {cartQuantity > 0 && (
+                            <span className="absolute -top-1 -right-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                {cartQuantity}
+                            </span>
+                        )}
+
                         <span className="hidden md:block">Giỏ hàng</span>
                     </Link>
+
 
                     {!user ? (
                         <Link
@@ -143,7 +166,7 @@ const Header = () => {
                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100  flex gap-4 items-center"
                                 >   
                                     <CreditCard size={22} />
-                                    Điểm tích lũy
+                                    điểm tích lũy
                                 </Link> */}
                                 {user.role === 'admin' && (
                                     <Link

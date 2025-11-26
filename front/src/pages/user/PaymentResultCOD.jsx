@@ -19,6 +19,7 @@ const PaymentResultCOD = () => {
             try {
                 const res = await axiosInstance.get(`/api/order/${id}`);
                 setOrder(res.data);
+                localStorage.removeItem('cartQuantity');
             } catch (err) {
                 console.error('Lỗi lấy đơn hàng COD:', err);
                 // navigate('/');
@@ -31,7 +32,7 @@ const PaymentResultCOD = () => {
     if (!order)
         return (
             <div className="p-6 text-center text-gray-600">
-                Đang tải đơn hàng...
+                đang tải đơn hàng...
             </div>
         );
 
@@ -50,22 +51,22 @@ const PaymentResultCOD = () => {
             <div className="flex flex-col items-center text-center mb-10 mt-8">
                 <CheckCircle className="w-20 h-20 text-green-500 mb-3" />
                 <h1 className="text-3xl font-bold text-green-600">
-                    Đặt hàng thành công!
+                    đặt hàng thành công!
                 </h1>
                 <p className="text-gray-600 mt-2">
-                    Cảm ơn bạn đã đặt hàng tại cửa hàng của chúng tôi.
+                    Cảm ơn bạnĐã đặt hàng tại cửa hàng của chúng tôi.
                 </p>
             </div>
 
             {/* Thông tin đơn hàng */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Địa chỉ giao hàng + sản phẩm */}
+                {/* địa chỉ giao hàng + sản phẩm */}
                 <div className="md:col-span-2 space-y-6">
-                    {/* Địa chỉ */}
+                    {/* địa chỉ */}
                     <div className="bg-white rounded-2xl shadow p-5 border">
                         <h2 className="flex items-center gap-2 font-semibold text-gray-800 mb-2">
                             <MapPin size={20} />
-                            Địa chỉ giao hàng
+                            địa chỉ giao hàng
                         </h2>
                         <p className="text-gray-700">
                             {order.address.fullAddress}
@@ -76,7 +77,7 @@ const PaymentResultCOD = () => {
                     <div className="bg-white rounded-2xl shadow p-5 border">
                         <h2 className="flex items-center gap-2 font-semibold text-gray-800 mb-4">
                             <ShoppingBasket size={20} />
-                            Sản phẩm đã mua
+                            Sản phẩmĐã mua
                         </h2>
                         <div className="space-y-4">
                             {order.orderItems.map((item, index) => {
@@ -127,7 +128,7 @@ const PaymentResultCOD = () => {
                                             </p>
                                         </div>
                                         <div className="text-right font-semibold text-gray-800">
-                                            {item.price.toLocaleString()}₫
+                                            {item.price.toLocaleString()} đ
                                         </div>
                                     </div>
                                 );
@@ -185,7 +186,7 @@ const PaymentResultCOD = () => {
                     <div className="mt-6 border-t pt-4 flex justify-between text-base font-semibold">
                         <span>Tổng thanh toán:</span>
                         <span className="text-xl text-black">
-                            {order.totalAmount.toLocaleString()}₫
+                            {order.totalAmount.toLocaleString()} đ
                         </span>
                     </div>
                 </div>

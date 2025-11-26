@@ -38,7 +38,7 @@ const OrderStaffDetail = () => {
     if (!order) {
         return (
             <div className="p-6 text-gray-600">
-                Đang tải chi tiết đơn hàng...
+                đang tải chi tiết đơn hàng...
             </div>
         );
     }
@@ -59,7 +59,7 @@ const OrderStaffDetail = () => {
                                 Tên sản phẩm
                             </th>
                             <th className="px-4 py-2 text-center">Số lượng</th>
-                            <th className="px-4 py-2 text-center">Đơn giá</th>
+                            <th className="px-4 py-2 text-center"> đơn giá</th>
                             <th className="px-4 py-2 text-center">Thành tiền</th>
                         </tr>
                     </thead>
@@ -129,7 +129,7 @@ const OrderStaffDetail = () => {
                     <strong className='text-lg'>Thanh toán:</strong>
                     {order.isPaid ? (
                         <div className="text-green-600 font-semibold ml-1 flex gap-2 text-lg">
-                            <CheckCircle /> Đã thanh toán
+                            <CheckCircle />Đã thanh toán
                         </div>
                     ) : (
                         <div className="text-red-500 font-semibold ml-1 flex gap-2 text-lg">

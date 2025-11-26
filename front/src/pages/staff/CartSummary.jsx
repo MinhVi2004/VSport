@@ -55,14 +55,14 @@ const CartSummary = ({ cartItems, totalAmount }) => {
               <div className="flex-1">
                 <div className="font-medium">{item.product.name}</div>
                 <div className="text-sm text-gray-500">
-                  Đơn giá: {item.price.toLocaleString()}đ
+                  đơn giá: {item.price.toLocaleString()} đ
                 </div>
                 <div className="text-sm text-gray-500">
                   Số lượng: {item.quantity}
                 </div>
               </div>
               <div className="text-right font-semibold text-green-700">
-                {(item.quantity * item.price).toLocaleString()}đ
+                {(item.quantity * item.price).toLocaleString()} đ
               </div>
             </li>
           ))}
@@ -71,7 +71,7 @@ const CartSummary = ({ cartItems, totalAmount }) => {
 
       <div className="mt-6">
         <div className="text-lg font-bold mb-3 text-right">
-          Tổng cộng: {totalAmount.toLocaleString()}đ
+          Tổng cộng: {totalAmount.toLocaleString()} đ
         </div>
         <div className="flex justify-center mt-4">
           <button

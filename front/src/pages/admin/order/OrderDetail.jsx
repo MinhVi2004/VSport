@@ -97,7 +97,7 @@ const OrderDetail = () => {
                 </div>
                 <div>
                     <strong>Tổng tiền:</strong>{' '}
-                    {order.totalAmount?.toLocaleString()}₫
+                    {order.totalAmount?.toLocaleString()} đ
                 </div>
                 <div>
                     <strong>Địa chỉ giao hàng:</strong>{' '}
@@ -188,7 +188,7 @@ const OrderDetail = () => {
                                         : item.size}
                                 </td>
                                 <td className="px-3 py-2 text-center">
-                                    {item.price?.toLocaleString()}₫
+                                    {item.price?.toLocaleString()} đ
                                 </td>
                                 <td className="px-3 py-2 text-center">
                                     {item.quantity}
@@ -197,7 +197,7 @@ const OrderDetail = () => {
                                     {(
                                         item.price * item.quantity
                                     ).toLocaleString()}
-                                    ₫
+                                    đ
                                 </td>
                             </tr>
                         ))}

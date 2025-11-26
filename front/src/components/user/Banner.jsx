@@ -10,7 +10,7 @@ const Banner = () => {
   useEffect(() => {
   const fetchSlides = async () => {
     try {
-      const res = await axiosInstance.get('api/banner');
+      const res = await axiosInstance.get('/api/banner');
       const data = res.data;
 
       setSlides(data);

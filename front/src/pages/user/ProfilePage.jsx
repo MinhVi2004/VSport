@@ -21,7 +21,7 @@ const ProfilePage = () => {
 
     if (!user)
         return (
-            <div className="text-center mt-10 text-gray-600">Đang tải...</div>
+            <div className="text-center mt-10 text-gray-600"> đang tải...</div>
         );
 
     return (

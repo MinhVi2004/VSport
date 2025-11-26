@@ -113,7 +113,7 @@ const UserDetail = () => {
         }
     };
 
-    if (!user) return <p className="p-6">Đang tải...</p>;
+    if (!user) return <p className="p-6"> đang tải...</p>;
 
     return (
         <div className="p-8 min-h-screen bg-gray-50">
@@ -165,7 +165,7 @@ const UserDetail = () => {
                                     : 'bg-red-100 text-red-600'
                             }`}
                         >
-                            {user.status ? 'Đang hoạt động' : 'Đã bị khóa'}
+                            {user.status ? ' đang hoạt động' : 'Đã bị khóa'}
                         </span>
                     </div>
                 </div>
@@ -255,7 +255,7 @@ const UserDetail = () => {
                                         </td>
                                         <td className="px-4 py-2">
                                             {order.totalAmount?.toLocaleString()}
-                                            ₫
+                                            đ
                                         </td>
                                         <td className="px-4 py-2">
                                             <span
@@ -278,13 +278,13 @@ const UserDetail = () => {
                                                     'Hoàn thành'
                                                         ? 'bg-green-100 text-green-700'
                                                         : order.status ===
-                                                          'Đang xác nhận'
+                                                          ' đang xác nhận'
                                                         ? 'bg-yellow-100 text-yellow-700'
                                                         : order.status ===
-                                                          'Đang xử lý'
+                                                          ' đang xử lý'
                                                         ? 'bg-blue-100 text-blue-700'
                                                         : order.status ===
-                                                          'Đang vận chuyển'
+                                                          ' đang vận chuyển'
                                                         ? 'bg-indigo-100 text-indigo-700'
                                                         : order.status ===
                                                           'Đã vận chuyển'

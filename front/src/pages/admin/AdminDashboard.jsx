@@ -118,7 +118,7 @@ const AdminDashboard = () => {
                 <StatCard
                     title="Tổng doanh thu"
                     value={stats.revenue.toLocaleString()}
-                    prefix="₫"
+                    prefix=" đ"
                 />
             </div>
 
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
                         <XAxis dataKey="name" />
                         <YAxis tickFormatter={v => `${v / 1e6}tr`} />
                         <Tooltip
-                            formatter={value => `${value.toLocaleString()}₫`}
+                            formatter={value => `${value.toLocaleString()} đ`}
                         />
                         <Bar
                             dataKey="revenue"
@@ -147,7 +147,7 @@ const AdminDashboard = () => {
             {/* Danh sách đơn hàng mới */}
             <div className="bg-white p-4 rounded-xl shadow">
                 <h2 className="text-lg font-semibold mb-2">
-                    Đơn hàng tuần này
+                    đơn hàng tuần này
                 </h2>
 
                 <div className="overflow-auto">
@@ -181,13 +181,13 @@ const AdminDashboard = () => {
                                         ).toLocaleString()}
                                     </td>
                                     <td className="p-2 text-center text-blue-600 font-semibold">
-                                        {order.totalAmount.toLocaleString()}₫
+                                        {order.totalAmount.toLocaleString()} đ
                                     </td>
                                     <td className="p-2 text-center align-middle">
     {order.isPaid ? (
         <span className="inline-flex items-center justify-center text-green-600 font-medium">
             <CheckCircle className="w-4 h-4 mr-1" />
-            Đã thanh toán
+           Đã thanh toán
         </span>
     ) : (
         <span className="inline-flex items-center justify-center text-red-500 font-medium">

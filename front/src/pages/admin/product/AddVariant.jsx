@@ -156,7 +156,7 @@ const AddVariant = () => {
                       <tr key={i} className="border-b last:border-none">
                         <td className="py-1">{s.size}</td>
                         <td className="py-1">{s.quantity}</td>
-                        <td className="py-1">{s.price.toLocaleString()} ₫</td>
+                        <td className="py-1">{s.price.toLocaleString()} đ</td>
                       </tr>
                     ))}
                   </tbody>
@@ -175,7 +175,7 @@ const AddVariant = () => {
             value={color}
             onChange={(e) => setColor(e.target.value)}
             className="w-full border border-gray-300 p-3 rounded-md"
-            placeholder="Ví dụ: Đỏ, Xanh..."
+            placeholder="Ví dụ: đỏ, Xanh..."
             required
           />
         </div>
@@ -198,7 +198,7 @@ const AddVariant = () => {
           <div className="grid grid-cols-3 gap-x-6 text-gray-500 text-sm font-medium mb-2 px-1">
             <div>Size</div>
             <div>Số lượng</div>
-            <div>Giá (VNĐ)</div>
+            <div>Giá ( đ)</div>
           </div>
 
           <div className="space-y-4">

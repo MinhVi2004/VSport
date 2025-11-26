@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-    Link,
-    useNavigate
-} from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axiosInstance from './../../utils/axios';
 import {
     CheckCircle,
@@ -17,35 +14,48 @@ const PaymentResult = () => {
     const [order, setOrder] = useState(null);
     const params = new URLSearchParams(window.location.search);
     const txnRef = params.get('vnp_TxnRef');
-    useEffect(() => {
-    const fetchOrder = async () => {
-        try {
-            // Parse toàn bộ query string
-            const rawParams = new URLSearchParams(window.location.search);
-            const body = {};
-            for (const [key, value] of rawParams.entries()) {
-                body[key] = value;
-            }
-
-            // Gọi IPN thủ công với đầy đủ dữ liệu như IPN thực
-            await axiosInstance.get('/api/order/vnpay_ipn', { params: body });
-
-            // Lấy chi tiết đơn hàng sau khi IPN xác nhận
-            const res = await axiosInstance.get(`/api/order/${body.vnp_TxnRef}`);
-            setOrder(res.data);
-        } catch (err) {
-            console.error('Lỗi xác nhận thanh toán:', err);
-            // navigate('/');
+    const getItemPrice = item => {
+        if (item.variant && item.size) {
+            const sizeObj = item.variant.sizes?.find(s => s.size === item.size);
+            if (sizeObj) return sizeObj.price;
         }
+        return item.price || item.product?.price || 0;
     };
+    useEffect(() => {
+        localStorage.removeItem('cartQuantity');
+        window.dispatchEvent(new Event('cartUpdated'));
+        const fetchOrder = async () => {
+            try {
+                // Parse toàn bộ query string
+                const rawParams = new URLSearchParams(window.location.search);
+                const body = {};
+                for (const [key, value] of rawParams.entries()) {
+                    body[key] = value;
+                }
 
-    if (txnRef) fetchOrder();
-}, [txnRef]);
+                // Gọi IPN thủ công với đầy đủ dữ liệu như IPN thực
+                await axiosInstance.get('/api/order/vnpay_ipn', {
+                    params: body,
+                });
+
+                // Lấy chi tiết đơn hàng sau khi IPN xác nhận
+                const res = await axiosInstance.get(
+                    `/api/order/${body.vnp_TxnRef}`
+                );
+                setOrder(res.data);
+            } catch (err) {
+                console.error('Lỗi xác nhận thanh toán:', err);
+                // navigate('/');
+            }
+        };
+
+        if (txnRef) fetchOrder();
+    }, [txnRef]);
 
     if (!order)
         return (
             <div className="p-6 text-center text-gray-600">
-                Đang tải đơn hàng...
+                đang tải đơn hàng...
             </div>
         );
 
@@ -57,7 +67,7 @@ const PaymentResult = () => {
                     Thanh toán thất bại
                 </h2>
                 <p className="text-gray-600 mt-2">
-                    Đơn hàng chưa được thanh toán. Vui lòng thử lại hoặc liên hệ
+                    đơn hàng chưa được thanh toán. Vui lòng thử lại hoặc liên hệ
                     hỗ trợ.
                 </p>
                 <button
@@ -94,9 +104,9 @@ const PaymentResult = () => {
 
             {/* Thông tin đơn hàng */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Địa chỉ giao hàng + sản phẩm */}
+                {/* địa chỉ giao hàng + sản phẩm */}
                 <div className="md:col-span-2 space-y-6">
-                    {/* Địa chỉ */}
+                    {/* địa chỉ */}
                     <div className="bg-white rounded-2xl shadow p-5 border">
                         <h2 className="flex items-center gap-2 font-semibold text-gray-800 mb-2">
                             <MapPin size={20} />
@@ -114,40 +124,58 @@ const PaymentResult = () => {
                             Sản phẩm đã mua
                         </h2>
                         <div className="space-y-4">
-                            {order.orderItems.map((item, index) => (
-                                <div
-                                    key={index}
-                                    className="flex gap-4 border rounded-xl p-4 hover:shadow-sm transition"
-                                >
-                                    <Link to={`/product/${item.product?._id}`}>
-                                        <img
-                                            src={item.variant?item.variant.image:item.product?.images?.[0]?.url}
-                                            alt={item.product?.name}
-                                            className="w-16 h-16 object-cover rounded-lg"
-                                        />
-                                    </Link>
-                                    <div className="flex-1">
+                            {order.orderItems.map((item, index) => {
+                                const itemPrice = getItemPrice(item); // giá 1 sản phẩm
+                                const totalPrice = itemPrice * item.quantity; // tổng giá sản phẩm
+
+                                return (
+                                    <div
+                                        key={index}
+                                        className="flex gap-4 border rounded-xl p-4 hover:shadow-sm transition"
+                                    >
                                         <Link
                                             to={`/product/${item.product?._id}`}
-                                            className="font-semibold text-gray-800 hover:underline"
                                         >
-                                            {item.product?.name}
+                                            <img
+                                                src={
+                                                    item.variant
+                                                        ? item.variant.image
+                                                        : item.product
+                                                              ?.images?.[0]?.url
+                                                }
+                                                alt={item.product?.name}
+                                                className="w-16 h-16 object-cover rounded-lg"
+                                            />
                                         </Link>
-                                        {item.variant && (
-                                            <p className="text-sm text-gray-500">
-                                                Biến thể: {item.variant.color} -{' '}
-                                                {item.size}
+                                        <div className="flex-1">
+                                            <Link
+                                                to={`/product/${item.product?._id}`}
+                                                className="font-semibold text-gray-800 hover:underline"
+                                            >
+                                                {item.product?.name}
+                                            </Link>
+                                            {item.variant && (
+                                                <p className="text-sm text-gray-500">
+                                                    Biến thể:{' '}
+                                                    {item.variant.color} -{' '}
+                                                    {item.size}
+                                                </p>
+                                            )}
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                Số lượng: {item.quantity}
                                             </p>
-                                        )}
-                                        <p className="text-sm text-gray-600 mt-1">
-                                            Số lượng: {item.quantity}
-                                        </p>
+                                            {/* Dòng tổng giá từng sản phẩm */}
+                                            <p className="text-sm text-red-600 font-medium mt-1">
+                                                Tổng:{' '}
+                                                {totalPrice.toLocaleString()} đ
+                                            </p>
+                                        </div>
+                                        <div className="text-right font-semibold text-gray-800">
+                                            {itemPrice.toLocaleString()} đ
+                                        </div>
                                     </div>
-                                    <div className="text-right font-semibold text-gray-800">
-                                        {item.price.toLocaleString()}₫
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -201,7 +229,7 @@ const PaymentResult = () => {
                     <div className="mt-6 border-t pt-4 flex justify-between text-base font-semibold">
                         <span>Tổng thanh toán:</span>
                         <span className="text-xl text-black">
-                            {order.totalAmount.toLocaleString()}₫
+                            {order.totalAmount.toLocaleString()} đ
                         </span>
                     </div>
                 </div>

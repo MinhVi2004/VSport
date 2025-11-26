@@ -22,7 +22,7 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id, navigate]);
 
-  if (!product) return <div className="p-4">Đang tải...</div>;
+  if (!product) return <div className="p-4"> đang tải...</div>;
 
   return (
     <div className="p-6 max-w-4xl mx-auto bg-white rounded shadow space-y-6">

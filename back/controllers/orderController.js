@@ -1,6 +1,7 @@
 const Order = require("./../models/Order");
 const Cart = require("./../models/Cart");
 const User = require("./../models/User");
+const Address = require("./../models/Address");
 const nodemailer = require("nodemailer");
 const querystring = require("querystring");
 
@@ -176,7 +177,7 @@ const getAllMyOrders = async (req, res) => {
       .populate("orderItems.product")
       .populate("orderItems.variant")
       .populate("address");
-
+    console.log(orders);
     res.json(orders);
   } catch {
     res.status(500).json({ message: "Không thể lấy đơn hàng" });
@@ -197,7 +198,7 @@ const getMyOrdersById = async (req, res) => {
       .populate("address")
       .populate("user", "name email")
       .sort({ createdAt: -1 });
-
+    console.log(order);
     if (!order) {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
     }
@@ -217,6 +218,7 @@ const getOrderById = async (req, res) => {
       .populate("address")
       .populate("user", "name email")
       .sort({ createdAt: -1 }); // ✅ Sắp xếp giảm dần theo thời gian
+    console.log(order);
     if (!order) {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
     }

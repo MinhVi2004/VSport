@@ -9,3 +9,13 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+/* custom-carousel.css */
+.carousel .control-dots .dot {
+  background: #000; /* màu  đen */
+  opacity: 0.3;     /* tùy chỉnh  độ mờ */
+}
+
+.carousel .control-dots .dot.selected {
+  background: #000; /* màu  đen khi active */
+  opacity: 1;
+}

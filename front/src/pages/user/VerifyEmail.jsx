@@ -29,7 +29,7 @@ const VerifyEmail = () => {
       }
 
       try {
-        const res = await axios.get(`${BACKEND_URL}api/user/verify-email?token=${token}`);
+        const res = await axios.get(`${BACKEND_URL}/api/user/verify-email?token=${token}`);
         toast.success(res.data.message || "Xác minh thành công!");
         setStatus("success");
 
@@ -37,7 +37,7 @@ const VerifyEmail = () => {
           navigate(`/signin${redirected ? `?redirect=${redirected}` : ''}`);
         }, 3000);
       } catch (err) {
-        toast.error(err.response?.data?.message || "Token không hợp lệ hoặc đã hết hạn.");
+        toast.error(err.response?.data?.message || "Token không hợp lệ hoặcĐã hết hạn.");
         setStatus("error");
       } finally {
         setLoading(false);
@@ -51,7 +51,7 @@ const VerifyEmail = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white shadow-md rounded-lg p-8 max-w-md text-center">
         {loading ? (
-          <p className="text-gray-600">Đang xác minh tài khoản...</p>
+          <p className="text-gray-600"> đang xác minh tài khoản...</p>
         ) : status === "success" ? (
           <>
             <CheckCircle size={48} className="text-green-500 mx-auto mb-4" />
@@ -62,7 +62,7 @@ const VerifyEmail = () => {
           <>
             <XCircle size={48} className="text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-red-600 mb-2">Xác minh thất bại</h2>
-            <p className="text-gray-600">Token không hợp lệ hoặc đã hết hạn.</p>
+            <p className="text-gray-600">Token không hợp lệ hoặcĐã hết hạn.</p>
           </>
         )}
       </div>

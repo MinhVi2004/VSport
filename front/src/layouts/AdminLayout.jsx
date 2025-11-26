@@ -60,7 +60,7 @@ const AdminLayout = () => {
       <Link to="/admin/category" className="block hover:text-blue-600">Danh Mục</Link>
       <Link to="/admin/banner" className="block hover:text-blue-600">Banner</Link>
       <Link to="/admin/product" className="block hover:text-blue-600">Sản Phẩm</Link>
-      <Link to="/admin/order" className="block hover:text-blue-600">Đơn Hàng</Link>
+      <Link to="/admin/order" className="block hover:text-blue-600"> Đơn Hàng</Link>
       <Link to="/admin/user" className="block hover:text-blue-600">Người Dùng</Link>
     </div>
 

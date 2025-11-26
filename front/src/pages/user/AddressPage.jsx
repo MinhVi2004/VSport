@@ -118,28 +118,28 @@ const AddressPage = () => {
         }
 
         if (!phoneRegex.test(form.phoneNumber.trim())) {
-            toast.warning('Số điện thoại không đúng định dạng.');
+            toast.warning('Số  điện thoại không  đúng định dạng.');
             return;
         }
 
         if (!form.province || !form.district || !form.ward) {
             toast.warning(
-                'Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.'
+                'Vui lòng chọn  đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.'
             );
             return;
         }
 
         if (!form.detail.trim() || form.detail.trim().length < 6) {
-            toast.warning('Địa chỉ chi tiết phải có ít nhất 6 ký tự.');
+            toast.warning(' địa chỉ chi tiết phải có ít nhất 6 ký tự.');
             return;
         }
         try {
             if (isEdit) {
                 await axios.put(`/api/address/${editId}`, form);
-                toast.success('Sửa địa chỉ thành công!');
+                toast.success('Sửa  địa chỉ thành công!');
             } else {
                 await axios.post('/api/address', form);
-                toast.success('Thêm địa chỉ thành công!');
+                toast.success('Thêm  địa chỉ thành công!');
             }
             resetForm();
             fetchAddresses();
@@ -344,7 +344,7 @@ const AddressPage = () => {
                         <div className="w-5 h-5 rounded border border-gray-400 flex items-center justify-center peer-checked:bg-blue-600 peer-checked:border-blue-600 transition">
                             <Check className="w-4 h-4 text-white peer-checked:block hidden" />
                         </div>
-                        <span>Đặt làm địa chỉ mặc định</span>
+                        <span> đặt làm địa chỉ mặc định</span>
                     </label>
                     <div className="flex gap-2 justify-end">
                         <button
