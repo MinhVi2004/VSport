@@ -54,7 +54,7 @@ const Banner = () => {
   if (slides.length === 0) return null;
 
   return (
-    <div className="relative w-full max-w-screen-xl mx-auto overflow-hidden mt-3">
+    <div className="relative w-full max-w-screen-xl mx-auto overflow-hidden" style="margin-top:10px;">
       <div className="relative h-[40vh] sm:h-[60vh]">
         {slides.map((slide, index) => (
           <div
