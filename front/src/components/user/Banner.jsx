@@ -66,7 +66,7 @@ const Banner = () => {
             <img
               src={slide.image}
               alt={`Banner ${index + 1}`}
-              className="w-full h-full object-fill"
+              className="w-full h-full object-cover"
             />
           </div>
         ))}
