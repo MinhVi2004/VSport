@@ -1,10 +1,11 @@
 const express = require("express");
 const app = express();
-const dotenv = require("dotenv").config();
+require("dotenv").config();
 const cors = require("cors");
 const bodyParser = require("body-parser");
+
 const connectDB = require("./config/db");
-const setupSwagger = require('./swagger');
+const setupSwagger = require("./swagger");
 
 // Import routes
 const addressRoutes = require("./routes/addressRoutes");
@@ -17,69 +18,95 @@ const categoryRoutes = require("./routes/categoryRoutes");
 const forgetPasswordRoutes = require("./routes/ForgetPasswordRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const staffRoutes = require("./routes/staffRoutes");
+
+/* =======================
+   CORS CONFIG
+======================= */
 const allowedOrigins = [
-  "http://localhost:3000", // phát triển local
-  process.env.FRONT_END, // thay bằng tên thật của app bạn trên Vercel
+  "http://localhost:3000",
+  process.env.FRONT_END,
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // cho phép Postman / cron / server-side
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
+
+/* =======================
+   BODY PARSER
+======================= */
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Test route
+/* =======================
+   HEALTH CHECK (CHO CRON)
+======================= */
+app.get("/health", (req, res) => {
+  res.status(200).send("ok");
+});
+
+/* =======================
+   LAZY DB CONNECTION
+   (QUAN TRỌNG CHO RENDER)
+======================= */
+app.use(async (req, res, next) => {
+  // health check không cần DB
+  if (req.path === "/health") return next();
+
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("DB connection error:", error.message);
+    res.status(500).json({ message: "Database connection failed" });
+  }
+});
+
+/* =======================
+   ROOT TEST
+======================= */
 app.get("/", (req, res) => {
   res.send("🚀 API is running!");
 });
-app.get('/health', (req, res) => {
-  res.status(200).send('ok');
-});
-// Connect DB
-connectDB();
 
-// Log loading routes
-console.log("Loading routes...");
-
+/* =======================
+   ROUTES
+======================= */
 try {
   app.use("/api/user", userRoutes);
-  console.log("/api/user routes loaded");
-
   app.use("/api/product", productRoutes);
-  console.log("/api/product routes loaded");
-
   app.use("/api/address", addressRoutes);
-  console.log("/api/address routes loaded");
-  
   app.use("/api/cart", cartRoutes);
-  console.log("/api/cart routes loaded");
-
   app.use("/api/order", orderRoutes);
-  console.log("/api/order routes loaded");
-
   app.use("/api/banner", bannerRoutes);
-  console.log("/api/banner routes loaded");
-
   app.use("/api/category", categoryRoutes);
-  console.log("/api/category routes loaded");
-
   app.use("/api/forget", forgetPasswordRoutes);
-  console.log("/api/forget routes loaded");
-
   app.use("/api/email", emailRoutes);
-  console.log("/api/email routes loaded");
-
   app.use("/api/staff", staffRoutes);
-  console.log("/api/staff routes loaded");
-
 } catch (err) {
-  console.error("Error when loading routes:", err.message);
+  console.error("Error loading routes:", err.message);
 }
-setupSwagger(app);
+
+/* =======================
+   SWAGGER (DEV ONLY)
+======================= */
+if (process.env.NODE_ENV !== "production") {
+  setupSwagger(app);
+}
+
+/* =======================
+   START SERVER
+======================= */
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
