@@ -20,10 +20,10 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div className="p-4">
+          <p className="text-sm text-gray-500 mt-1">{product.category?.name}</p>
           <h2 className="text-md font-semibold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors duration-300">
             {product.name}
           </h2>
-          <p className="text-sm text-gray-500 mt-1">{product.category?.name}</p>
           <div className="mt-2 flex flex-col items-center gap-1">
             {product.oldPrice && (
               <span className="text-sm text-gray-400 line-through">
