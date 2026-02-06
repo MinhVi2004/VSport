@@ -256,7 +256,7 @@ const SigninPage = () => {
             </div>
           </div>
 
-          <div className="flex gap-2 mt-1">
+          <div className="flex gap-2 mt-1 justify-center">
             <FcGoogle className="cursor-pointer border p-2 hover:bg-gray-100" size={50} onClick={login} />
             <FaFacebook className="cursor-pointer border p-2 text-blue-500 hover:bg-gray-100" size={50} onClick={handleFacebookLogin} />
           </div>
