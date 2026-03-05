@@ -5,6 +5,7 @@ import './styles/index.css';
 import './styles/fonts.css';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter } from 'react-router-dom';
+import "@fortawesome/fontawesome-free/css/all.min.css";
 createRoot(document.getElementById('root')).render(
     <StrictMode>
         <BrowserRouter>
