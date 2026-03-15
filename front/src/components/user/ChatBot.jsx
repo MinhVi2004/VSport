@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 
-const CHATBOT_URL = import.meta.env.VITE_N8N_CHAT_LINK;
+const CHATBOT_URL =
+  "http://13.239.5.121:5678/webhook/5ba0bfaf-086a-491f-b31d-9c1a78c229ff";
 
 const suggestions = [
   "Áo hiking dưới 500k",
@@ -10,15 +11,22 @@ const suggestions = [
 ];
 
 const Chatbot = () => {
+  const sessionId =
+    localStorage.getItem("chat-session") || crypto.randomUUID();
+
+  localStorage.setItem("chat-session", sessionId);
+
   const [isOpen, setIsOpen] = useState(true);
   const [message, setMessage] = useState("");
+  const [typing, setTyping] = useState(false);
+
   const [messages, setMessages] = useState([
     {
       role: "bot",
-      text: "Xin chào 👋 Tôi có thể giúp bạn tìm sản phẩm phù hợp."
+      text: "Xin chào 👋 Tôi có thể giúp bạn tìm sản phẩm phù hợp.",
+      products: []
     }
   ]);
-  const [typing, setTyping] = useState(false);
 
   const messagesEndRef = useRef(null);
 
@@ -27,11 +35,15 @@ const Chatbot = () => {
   }, [messages, typing]);
 
   const sendMessage = async (text = message) => {
-    console.log("link" + CHATBOT_URL)
     if (!text.trim()) return;
 
-    const userMessage = { role: "user", text };
-    setMessages(prev => [...prev, userMessage]);
+    const userMessage = {
+      role: "user",
+      text,
+      products: []
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
     setTyping(true);
     setMessage("");
 
@@ -41,25 +53,75 @@ const Chatbot = () => {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ message: text })
+        body: JSON.stringify({
+          message: text,
+        })
       });
 
       const data = await res.json();
 
-      const botMessage = {
-        role: "bot",
-        text: data.reply || JSON.stringify(data)
-      };
+      const bot = Array.isArray(data) ? data[0] : data;
 
-      setMessages(prev => [...prev, botMessage]);
-    } catch {
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
-        { role: "bot", text: "Có lỗi khi kết nối chatbot." }
+        {
+          role: "bot",
+          text: bot.message || "Không tìm thấy sản phẩm.",
+          products: bot.products || []
+        }
+      ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "bot",
+          text: "Có lỗi khi kết nối chatbot.",
+          products: []
+        }
       ]);
     }
 
     setTyping(false);
+  };
+
+  const renderProducts = (products) => {
+    if (!products) return null;
+
+    const list = products
+      .flatMap((group) => group.products)
+      .slice(0, 4);
+
+    return list.map((p) => (
+      <a
+        key={p.id}
+        href={`/product/${p.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex gap-3 bg-white border rounded-xl p-2 mb-2 hover:shadow-md transition"
+      >
+        <img
+          src={p.image}
+          alt={p.name}
+          className="w-16 h-16 object-cover rounded-lg"
+        />
+
+        <div className="flex flex-col justify-between flex-1">
+          <p className="text-sm font-medium line-clamp-2">
+            {p.name}
+          </p>
+
+          <div className="flex justify-between items-center mt-1">
+            <span className="text-red-500 font-semibold text-sm">
+              {p.price.toLocaleString()} VNĐ
+            </span>
+
+            <span className="text-xs text-gray-400">
+              còn {p.quantity}
+            </span>
+          </div>
+        </div>
+      </a>
+    ));
   };
 
   return (
@@ -69,12 +131,12 @@ const Chatbot = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-4 right-4 w-14 h-14 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center z-[9999]"
       >
-        <i className="fa-solid fa-comments"></i>
+        💬
       </button>
 
       {/* Chat Window */}
       <div
-        className={`fixed z-50 bottom-20 right-4 w-80 bg-white shadow-xl rounded-xl flex flex-col transition-all duration-300 z-[9999] ${
+        className={`fixed bottom-20 right-4 w-80 bg-white shadow-xl rounded-xl flex flex-col transition-all duration-300 z-[9999] ${
           isOpen
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-4 pointer-events-none"
@@ -82,48 +144,46 @@ const Chatbot = () => {
       >
         {/* Header */}
         <div className="flex justify-between items-center px-4 py-2 border-b font-semibold">
-          <span className="flex items-center gap-2">
-            <i className="fa-solid fa-robot text-blue-500"></i>
-            AI Assistant
-          </span>
+          <span>AI Assistant</span>
 
-          <button onClick={() => setIsOpen(false)}>
-            <i className="fa-solid fa-xmark"></i>
-          </button>
+          <button onClick={() => setIsOpen(false)}>✕</button>
         </div>
 
         {/* Messages */}
-        <div className="h-64 overflow-y-auto p-3 space-y-2 text-sm">
+        <div className="h-72 overflow-y-auto p-3 space-y-3 text-sm">
           {messages.map((msg, index) => (
             <div
               key={index}
               className={`flex ${
-                msg.role === "user" ? "justify-end" : "justify-start"
+                msg.role === "user"
+                  ? "justify-end"
+                  : "justify-start"
               }`}
             >
               <div
-                className={`px-3 py-2 rounded-lg max-w-[70%] ${
+                className={`px-3 py-2 rounded-lg max-w-[85%] ${
                   msg.role === "user"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-100"
                 }`}
               >
-                {msg.text}
+                {msg.text && <p className="mb-2">{msg.text}</p>}
+
+                {msg.role === "bot" && renderProducts(msg.products)}
               </div>
             </div>
           ))}
 
           {typing && (
-            <div className="text-gray-500 text-xs flex items-center gap-2">
-              <i className="fa-solid fa-robot"></i>
-              typing...
+            <div className="text-gray-500 text-xs">
+              Bot đang trả lời...
             </div>
           )}
 
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick suggestions */}
+        {/* Suggestions */}
         <div className="px-2 pb-2 flex flex-wrap gap-2">
           {suggestions.map((s, i) => (
             <button
@@ -142,7 +202,9 @@ const Chatbot = () => {
             className="flex-1 border rounded px-2 py-1 text-sm"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            onKeyDown={(e) =>
+              e.key === "Enter" && sendMessage()
+            }
             placeholder="Ví dụ: áo hiking dưới 500k"
           />
 
@@ -150,7 +212,7 @@ const Chatbot = () => {
             onClick={() => sendMessage()}
             className="bg-blue-500 text-white px-3 rounded"
           >
-            <i className="fa-solid fa-paper-plane"></i>
+            ➤
           </button>
         </div>
       </div>
