@@ -1,13 +1,20 @@
 import { useState, useRef, useEffect } from "react";
+import {
+  MessageCircle,
+  Send,
+  X,
+  Loader2
+} from "lucide-react";
 
 const CHATBOT_URL =
-  "http://13.239.5.121:5678/webhook/5ba0bfaf-086a-491f-b31d-9c1a78c229ff";
+  "http://3.106.130.203:5678/webhook/5ba0bfaf-086a-491f-b31d-9c1a78c229ff";
 
 const suggestions = [
-  "Áo hiking dưới 500k",
-  "Quần trekking",
-  "Sản phẩm bán chạy",
-  "Đồ outdoor cho leo núi"
+  "Sản phẩm dưới 1 triệu",
+  "Quần thể thao",
+  "Giày chạy bộ",
+  "Dụng cụ thể thao",
+  "Bóng đá"
 ];
 
 const Chatbot = () => {
@@ -23,7 +30,7 @@ const Chatbot = () => {
   const [messages, setMessages] = useState([
     {
       role: "bot",
-      text: "Xin chào 👋 Tôi có thể giúp bạn tìm sản phẩm phù hợp.",
+      text: "Xin chào! Tôi có thể giúp bạn tìm sản phẩm phù hợp.",
       products: []
     }
   ]);
@@ -33,6 +40,15 @@ const Chatbot = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing]);
+
+  const normalizeProducts = (products = []) =>
+    products.map((p) => ({
+      _id: p._id || p.id,
+      name: p.name,
+      price: p.price,
+      image: p.image,
+      quantity: p.quantity ?? 0
+    }));
 
   const sendMessage = async (text = message) => {
     if (!text.trim()) return;
@@ -54,22 +70,29 @@ const Chatbot = () => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          message: text,
+          message: text
         })
       });
 
       const data = await res.json();
+      const payload = Array.isArray(data) ? data[0] : data;
 
-      const bot = Array.isArray(data) ? data[0] : data;
+      let botMessage = {
+        role: "bot",
+        text: "",
+        products: []
+      };
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "bot",
-          text: bot.message || "Không tìm thấy sản phẩm.",
-          products: bot.products || []
-        }
-      ]);
+      if (payload.output) {
+        botMessage.text = payload.output;
+      } else if (payload.message) {
+        botMessage.text = payload.message;
+        botMessage.products = normalizeProducts(payload.products);
+      } else {
+        botMessage.text = "Không thể xử lý phản hồi từ chatbot.";
+      }
+
+      setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -85,16 +108,12 @@ const Chatbot = () => {
   };
 
   const renderProducts = (products) => {
-    if (!products) return null;
+    if (!products || !products.length) return null;
 
-    const list = products
-      .flatMap((group) => group.products)
-      .slice(0, 4);
-
-    return list.map((p) => (
+    return products.slice(0, 4).map((p) => (
       <a
-        key={p.id}
-        href={`/product/${p.id}`}
+        key={p._id}
+        href={`/product/${p._id}`}
         target="_blank"
         rel="noopener noreferrer"
         className="flex gap-3 bg-white border rounded-xl p-2 mb-2 hover:shadow-md transition"
@@ -131,7 +150,7 @@ const Chatbot = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-4 right-4 w-14 h-14 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center z-[9999]"
       >
-        💬
+        <MessageCircle size={26} />
       </button>
 
       {/* Chat Window */}
@@ -145,8 +164,9 @@ const Chatbot = () => {
         {/* Header */}
         <div className="flex justify-between items-center px-4 py-2 border-b font-semibold">
           <span>AI Assistant</span>
-
-          <button onClick={() => setIsOpen(false)}>✕</button>
+          <button onClick={() => setIsOpen(false)}>
+            <X size={18} />
+          </button>
         </div>
 
         {/* Messages */}
@@ -168,14 +188,14 @@ const Chatbot = () => {
                 }`}
               >
                 {msg.text && <p className="mb-2">{msg.text}</p>}
-
                 {msg.role === "bot" && renderProducts(msg.products)}
               </div>
             </div>
           ))}
 
           {typing && (
-            <div className="text-gray-500 text-xs">
+            <div className="flex items-center gap-2 text-gray-500 text-xs">
+              <Loader2 className="animate-spin" size={14} />
               Bot đang trả lời...
             </div>
           )}
@@ -210,9 +230,9 @@ const Chatbot = () => {
 
           <button
             onClick={() => sendMessage()}
-            className="bg-blue-500 text-white px-3 rounded"
+            className="bg-blue-500 text-white px-3 rounded flex items-center justify-center"
           >
-            ➤
+            <Send size={16} />
           </button>
         </div>
       </div>
