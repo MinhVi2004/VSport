@@ -6,8 +6,7 @@ import {
   Loader2
 } from "lucide-react";
 
-const CHATBOT_URL =
-  "http://3.106.130.203:5678/webhook/5ba0bfaf-086a-491f-b31d-9c1a78c229ff";
+const CHATBOT_URL = "/api/n8n";
 
 const suggestions = [
   "Sản phẩm dưới 1 triệu",
